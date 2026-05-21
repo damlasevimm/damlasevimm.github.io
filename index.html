@@ -1,5 +1,588 @@
----
-layout: home
-title: Home
-comments: false
----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Atelier Damla | Fine Handcrafted Ceramics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- DESIGN VARIABLES --- */
+        :root {
+            --bg-cream: #FDFBF7;
+            --bg-beige: #F4EFE6;
+            --lilac-tint: #ECE6F5;
+            --vibrant-purple: #7C3AED; /* New vibrant purple accent */
+            --lilac-muted: #A393BF;
+            --pink-soft: #F7E5E7;
+            --text-dark: #2B2625;
+            --text-muted: #6E6562;
+            --font-serif: 'Cormorant Garamond', serif;
+            --font-sans: 'Montserrat', sans-serif;
+            --transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* --- GLOBAL STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-cream);
+            color: var(--text-dark);
+            font-family: var(--font-sans);
+            font-weight: 300;
+            line-height: 1.7;
+            letter-spacing: 0.03em;
+            padding-top: 105px; /* Offset for fixed header & ribbon */
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-serif);
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* --- REPEATING WAVY TOP RIBBON --- */
+        .wavy-top-ribbon {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--lilac-tint),
+                var(--lilac-tint) 20px,
+                var(--vibrant-purple) 20px,
+                var(--vibrant-purple) 40px
+            );
+            z-index: 1001;
+        }
+
+        /* --- LOGO RECREATION (CSS Ripple) --- */
+        .logo-mark {
+            width: 40px;
+            height: 40px;
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            border-radius: 50%;
+            background: var(--lilac-tint);
+            transition: var(--transition);
+        }
+        .logo-mark:hover {
+            background: var(--vibrant-purple);
+        }
+        .logo-ripple {
+            position: absolute;
+            border: 2px solid #FFF;
+            border-color: transparent transparent var(--lilac-muted) var(--lilac-muted);
+            border-radius: 50%;
+        }
+        .logo-mark:hover .logo-ripple {
+            border-color: transparent transparent var(--pink-soft) var(--pink-soft);
+        }
+        .r1 { width: 50px; height: 50px; top: -5px; left: -5px; }
+        .r2 { width: 36px; height: 36px; top: 2px; left: 2px; }
+        .r3 { width: 22px; height: 22px; top: 9px; left: 9px; }
+
+        /* --- NAVIGATION --- */
+        header {
+            position: fixed;
+            top: 15px; /* Sits right beneath the wavy ribbon */
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: rgba(253, 251, 247, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(43, 38, 37, 0.04);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 90px;
+        }
+
+        .brand-name {
+            font-family: var(--font-sans);
+            font-weight: 400;
+            font-size: 1.1rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .brand-name span {
+            color: var(--vibrant-purple);
+            font-weight: 500;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 3rem;
+        }
+
+        .nav-menu a {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+        }
+
+        .nav-menu a:hover {
+            color: var(--vibrant-purple);
+        }
+
+        /* --- HERO --- */
+        #hero {
+            min-height: calc(100vh - 105px);
+            display: flex;
+            align-items: center;
+            position: relative;
+            background: radial-gradient(circle at 80% 20%, var(--lilac-tint) 0%, transparent 45%),
+                        radial-gradient(circle at 10% 80%, var(--pink-soft) 0%, transparent 35%);
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            line-height: 1.15;
+            margin-bottom: 2rem;
+        }
+
+        .hero-title span {
+            color: var(--vibrant-purple);
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        .hero-text {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            max-width: 500px;
+            margin-bottom: 2.5rem;
+        }
+
+        .editorial-link {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 500;
+            color: var(--vibrant-purple);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--vibrant-purple);
+            padding-bottom: 0.3rem;
+        }
+
+        .editorial-link:hover {
+            gap: 1rem;
+            opacity: 0.7;
+        }
+
+        .hero-showcase {
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .art-frame {
+            width: 100%;
+            max-width: 340px;
+            height: 460px;
+            background-color: var(--bg-beige);
+            border-radius: 180px 180px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 30px 60px rgba(43, 38, 37, 0.04);
+            position: relative;
+        }
+
+        /* Plate Placeholder showcasing structural concentric rings */
+        .plate-graphic {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: repeating-radial-gradient(circle, var(--lilac-tint), var(--lilac-tint) 6px, var(--bg-beige) 7px, var(--bg-beige) 12px);
+            box-shadow: inset 0 10px 20px rgba(0,0,0,0.05), 0 10px 25px rgba(0,0,0,0.03);
+            position: relative;
+        }
+
+        .plate-graphic.vibrant::before {
+            content: '';
+            position: absolute;
+            top: 25%; left: 25%; width: 50%; height: 50%;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--vibrant-purple) 0%, transparent 80%);
+            opacity: 0.4;
+        }
+
+        /* --- EDITORIAL SECTIONS --- */
+        section {
+            padding: 140px 0;
+        }
+
+        .section-header {
+            margin-bottom: 5rem;
+            max-width: 600px;
+        }
+
+        .section-tag {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--vibrant-purple);
+            font-weight: 500;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .section-headline {
+            font-size: 2.8rem;
+            line-height: 1.2;
+        }
+
+        /* --- GALLERY GRID --- */
+        #collection {
+            background-color: #F9F7F2;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+        }
+
+        .gallery-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .image-aspect-container {
+            width: 100%;
+            padding-bottom: 135%;
+            background-color: var(--bg-cream);
+            position: relative;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            border-top: 3px solid transparent;
+            transition: var(--transition);
+        }
+
+        .gallery-item:hover .image-aspect-container {
+            border-top-color: var(--vibrant-purple);
+            box-shadow: 0 15px 30px rgba(124, 58, 237, 0.05);
+        }
+
+        .gallery-art-mock {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-title {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            margin-bottom: 0.3rem;
+            transition: var(--transition);
+        }
+
+        .gallery-item:hover .item-title {
+            color: var(--vibrant-purple);
+        }
+
+        .item-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* --- PHILOSOPHY MATRIX --- */
+        .philosophy-grid {
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 6rem;
+            align-items: center;
+        }
+
+        .philosophy-text p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 1.8rem;
+        }
+        
+        .philosophy-text p:first-of-type {
+            color: var(--text-dark);
+            font-size: 1.3rem;
+            font-family: var(--font-serif);
+            line-height: 1.6;
+        }
+
+        .decor-wavy-shapes {
+            width: 100%;
+            max-width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, var(--vibrant-purple) 0%, var(--lilac-tint) 100%);
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+            position: relative;
+            opacity: 0.85;
+        }
+
+        /* --- CONTACT INQUIRIES --- */
+        #inquiries {
+            background-color: var(--bg-beige);
+        }
+
+        .form-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .form-minimal {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        .field-group {
+            position: relative;
+        }
+
+        .input-minimal {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(43, 38, 37, 0.2);
+            padding: 0.6rem 0;
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+
+        .input-minimal:focus {
+            outline: none;
+            border-bottom-color: var(--vibrant-purple);
+        }
+
+        .label-minimal {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-submit {
+            background: var(--text-dark);
+            color: var(--bg-cream);
+            border: none;
+            padding: 1rem 2.5rem;
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            align-self: flex-start;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-submit:hover {
+            background-color: var(--vibrant-purple);
+            color: white;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            padding: 5rem 0;
+            border-top: 1px solid rgba(43, 38, 37, 0.05);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        /* --- RESPONSIVE MODIFICATIONS --- */
+        @media (max-width: 868px) {
+            .hero-grid, .gallery-grid, .philosophy-grid, .form-split {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            .hero-title { font-size: 2.8rem; }
+            .nav-menu { display: none; }
+            .section-headline { font-size: 2.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wavy-top-ribbon"></div>
+
+    <header>
+        <div class="container nav">
+            <div class="brand-name">
+                <div class="logo-mark">
+                    <div class="logo-ripple r1"></div>
+                    <div class="logo-ripple r2"></div>
+                    <div class="logo-ripple r3"></div>
+                </div>
+                L'Atelier <span>Damla</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#collection">The Gallery</a>
+                <a href="#philosophy">Our Philosophy</a>
+                <a href="#inquiries">Studio Contact</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="hero">
+        <div class="container hero-grid">
+            <div>
+                <h1 class="hero-title">Objects designed for <span>tactile quietude</span>.</h1>
+                <p class="hero-text">L'Atelier Damla is an editorial ceramic workshop specializing in slow-form clay. We explore the structural intersection of deep amethyst minerals and fluid carved waves.</p>
+                <a href="#collection" class="editorial-link">Explore Curated Batch</a>
+            </div>
+            <div class="hero-showcase">
+                <div class="art-frame">
+                    <div class="plate-graphic vibrant"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="collection">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Form Studies</span>
+                <h2 class="section-headline">The Ripple & Amethyst Series</h2>
+            </div>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <div class="image-aspect-container">
+                        <div class="gallery-art-mock" style="background: radial-gradient(circle, var(--lilac-tint) 10%, transparent 70%);">
+                            <div class="plate-graphic vibrant" style="transform: scale(0.85);"></div>
+                        </div>
+                    </div>
+                    <h3 class="item-title">Concentric Amethyst Plate</h3>
+                    <span class="item-meta">Thrown Stoneware / Deep Violet Glaze</span>
+                </div>
+
+                <div class="gallery-item">
+                    <div class="image-aspect-container">
+                        <div class="gallery-art-mock" style="background: linear-gradient(to bottom, var(--pink-soft), transparent);">
+                            <div class="plate-graphic" style="transform: scale(0.7); opacity: 0.85;"></div>
+                        </div>
+                    </div>
+                    <h3 class="item-title">Morning Lilac Basin</h3>
+                    <span class="item-meta">Pinch-Formed / Soft Satin Finish</span>
+                </div>
+
+                <div class="gallery-item">
+                    <div class="image-aspect-container">
+                        <div class="gallery-art-mock" style="background: radial-gradient(at bottom left, var(--lilac-tint), transparent);">
+                            <div class="plate-graphic vibrant" style="transform: scale(0.75); filter: saturate(1.5);"></div>
+                        </div>
+                    </div>
+                    <h3 class="item-title">Rhythmic Wavy Vase</h3>
+                    <span class="item-meta">Coiled Sculpture / High-Alkali Fired</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="philosophy">
+        <div class="container philosophy-grid">
+            <div style="display: flex; justify-content: center;">
+                <div class="decor-wavy-shapes"></div>
+            </div>
+            <div class="philosophy-text">
+                <span class="section-tag">The Slow Movement</span>
+                <h2 class="section-headline" style="margin-bottom: 2rem;">Every ribbon is a signature of time.</h2>
+                <p>At L'Atelier Damla, we challenge mechanical production. Our workshop explores complex mineral glazing, firing clay at extreme temperatures to draw out bright indigo, magenta, and amethyst crystal clusters.</p>
+                <p>Hand-carved patterns snake naturally across the stoneware surfaces, ensuring each object remains a unique tactile artifact designed for intentional daily presence.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="inquiries">
+        <div class="container">
+            <div class="form-split">
+                <div>
+                    <span class="section-tag">Studio Inquiries</span>
+                    <h2 class="section-headline">Let's Connect</h2>
+                    <p style="margin-top: 1.5rem; color: var(--text-muted); max-width: 400px;">For architectural commissions, studio placement opportunities, custom gallery installations, or design updates, drop us a line below.</p>
+                </div>
+                <div>
+                    <form class="form-minimal" onsubmit="event.preventDefault(); alert('Inquiry received. Thank you for connecting with L\'Atelier Damla.');">
+                        <div class="field-group">
+                            <label class="label-minimal">Name</label>
+                            <input type="text" class="input-minimal" required>
+                        </div>
+                        <div class="field-group">
+                            <label class="label-minimal">Email Address</label>
+                            <input type="email" class="input-minimal" required>
+                        </div>
+                        <div class="field-group">
+                            <label class="label-minimal">Type of Placement</label>
+                            <input type="text" class="input-minimal" placeholder="e.g. Gallery Placement, Interior Commission">
+                        </div>
+                        <div class="field-group">
+                            <label class="label-minimal">Message</label>
+                            <textarea class="input-minimal" rows="3" required style="resize:none; font-family:var(--font-sans);"></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">Submit Request</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 L'Atelier Damla Studio. Handcrafted by design.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
