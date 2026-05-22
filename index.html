@@ -22,7 +22,7 @@
             --font-header: 'Montserrat', sans-serif;
             --font-body: 'Lora', serif;
         }
-        
+
         /* --- GLOBAL STYLES --- */
         * {
             box-sizing: border-box;
@@ -278,7 +278,10 @@
 
         .footer-content {
             max-width: 600px;
-            margin: 0auto 4rem auto;
+            margin: 0 auto 4rem auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center-aligns all text and forms */
         }
 
         .footer-content h3 {
@@ -288,19 +291,23 @@
 
         .footer-content p {
             font-size: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             opacity: 0.9;
         }
 
+        /* Perfectly centered and stacked layout for mobile/desktop */
         .newsletter-form {
             display: flex;
-            gap: 10px;
-            max-width: 450px;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 400px;
             margin: 0 auto;
+            align-items: center;
         }
 
         .newsletter-form input[type="email"] {
-            flex: 1;
+            width: 100%;
             padding: 1rem;
             border: none;
             border-bottom: 1px solid var(--primary-white);
@@ -308,6 +315,7 @@
             color: var(--primary-white);
             font-family: var(--font-body);
             font-size: 1rem;
+            text-align: center; /* Centers the typing text */
         }
 
         .newsletter-form input[type="email"]::placeholder {
@@ -323,12 +331,13 @@
             background: var(--primary-white);
             color: var(--brand-periwinkle);
             border: none;
-            padding: 1rem 2rem;
+            padding: 1rem 3rem;
             font-family: var(--font-header);
             font-size: 0.8rem;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.15em;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
+            width: auto;
         }
 
         .footer-btn:hover {
@@ -345,11 +354,34 @@
             font-family: var(--font-header);
             opacity: 0.8;
         }
-
         .socials {
             display: flex;
             gap: 2rem;
             list-style: none;
+            align-items: center; /* Vertically aligns icon and text */
+        }
+
+        .instagram-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem; /* Space between the logo and the text */
+        }
+
+        /* Styling the inline SVG icon */
+        .instagram-icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor; /* Forces the icon to match your white text color */
+            transition: opacity 0.3s ease;
+        }
+
+        @media (max-width: 968px) {
+            .footer-bottom {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            .socials { justify-content: center; }
         }
 
         /* --- RESPONSIVE DESIGN (TABLETS & MOBILE) --- */
@@ -470,8 +502,9 @@
         <div class="footer-content">
             <h3>Join the Atelier</h3>
             <p>Be the first to hear about upcoming studio drops, custom collections, and studio insights.</p>
-            <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Thank you for subscribing!');">
-                <input type="email" placeholder="Your email address" required>
+            
+            <form class="newsletter-form" action="https://formspree.io/f/YOUR_UNIQUE_ID_HERE" method="POST">
+                <input type="email" name="Subscriber Email" placeholder="Your email address" required>
                 <button type="submit" class="footer-btn">SUBSCRIBE</button>
             </form>
         </div>
@@ -479,9 +512,15 @@
         <div class="footer-bottom">
             <div>&copy; 2026 L'Atelier Damla. All rights reserved.</div>
             <ul class="socials">
-                <li><a href="#" target="_blank">Instagram</a></li>
-                <li><a href="#" target="_blank">Pinterest</a></li>
-                <li><a href="#" target="_blank">Journal</a></li>
+                <li>
+                    <a href="https://instagram.com/latelierdamla" target="_blank" class="instagram-link">
+                        <svg class="instagram-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+                        </svg>
+                        <span>@latelierdamla</span>
+                    </a>
+                </li>
+                <li><a href="mailto:info@latelierdamla.com">info@latelierdamla.com</a></li>
             </ul>
         </div>
     </footer>
