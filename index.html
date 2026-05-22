@@ -3,35 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>L'Atelier Damla | Fine Handcrafted Ceramics</title>
-    
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23ECE6F5'/%3E%3Cpath d='M20,50 A30,30 0 0,0 80,50' fill='none' stroke='%237C3AED' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M32,50 A18,18 0 0,0 68,50' fill='none' stroke='%237C3AED' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M44,50 A6,6 0 0,0 56,50' fill='none' stroke='%237C3AED' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
-
+    <title>L'Atelier Damla | Handmade Ceramics</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
     
     <style>
-        /* --- DESIGN VARIABLES --- */
+        /* --- BRAND DESIGN SYSTEM --- */
         :root {
-            --bg-cream: #FDFBF7;
-            --bg-beige: #F4EFE6;
-            --lilac-tint: #ECE6F5;
-            --vibrant-purple: #7C3AED; 
-            --lilac-muted: #A393BF;
-            --pink-soft: #F7E5E7;
-            --text-dark: #2B2625;
-            --text-muted: #6E6562;
-            --font-serif: 'Cormorant Garamond', serif;
-            --font-sans: 'Montserrat', sans-serif;
-            --transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            --primary-white: #FFFFFF;
+            --bg-cream: #FBFBFA;
+            --brand-periwinkle: #A0ACF8; /* Matched to your business card */
+            --text-dark: #1C1C1C;
+            --text-muted: #666666;
+            --font-header: 'Montserrat', sans-serif;
+            --font-body: 'Lora', serif;
         }
 
         /* --- GLOBAL STYLES --- */
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         html {
@@ -39,550 +32,454 @@
         }
 
         body {
-            background-color: var(--bg-cream);
+            font-family: var(--font-body);
             color: var(--text-dark);
-            font-family: var(--font-sans);
-            font-weight: 300;
+            background-color: var(--primary-white);
             line-height: 1.7;
-            letter-spacing: 0.03em;
-            padding-top: 105px; 
+            -webkit-font-smoothing: antialiased;
         }
 
-        h1, h2, h3 {
-            font-family: var(--font-serif);
+        h1, h2, h3, h4, .nav-logo, .btn {
+            font-family: var(--font-header);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
             font-weight: 300;
-            letter-spacing: 0.05em;
         }
 
         a {
-            text-decoration: none;
             color: inherit;
-            transition: var(--transition);
+            text-decoration: none;
+            transition: opacity 0.3s ease;
         }
 
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        /* --- REPEATING WAVY TOP RIBBON --- */
-        .wavy-top-ribbon {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 15px;
-            background: repeating-linear-gradient(
-                90deg,
-                var(--lilac-tint),
-                var(--lilac-tint) 20px,
-                var(--vibrant-purple) 20px,
-                var(--vibrant-purple) 40px
-            );
-            z-index: 1001;
-        }
-
-        /* --- LOGO RECREATION (CSS Ripple) --- */
-        .logo-mark {
-            width: 40px;
-            height: 40px;
-            position: relative;
-            display: inline-block;
-            overflow: hidden;
-            border-radius: 50%;
-            background: var(--lilac-tint);
-            transition: var(--transition);
-        }
-        .logo-mark:hover {
-            background: var(--vibrant-purple);
-        }
-        .logo-ripple {
-            position: absolute;
-            border: 2px solid #FFF;
-            border-color: transparent transparent var(--lilac-muted) var(--lilac-muted);
-            border-radius: 50%;
-        }
-        .logo-mark:hover .logo-ripple {
-            border-color: transparent transparent var(--pink-soft) var(--pink-soft);
-        }
-        .r1 { width: 50px; height: 50px; top: -5px; left: -5px; }
-        .r2 { width: 36px; height: 36px; top: 2px; left: 2px; }
-        .r3 { width: 22px; height: 22px; top: 9px; left: 9px; }
-
-        /* --- NAVIGATION --- */
-        header {
-            position: fixed;
-            top: 15px; 
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            background-color: rgba(253, 251, 247, 0.85);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(43, 38, 37, 0.04);
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 90px;
-        }
-
-        .brand-name {
-            font-family: var(--font-sans);
-            font-weight: 400;
-            font-size: 1.1rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-        }
-
-        .brand-name span {
-            color: var(--vibrant-purple);
-            font-weight: 500;
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 3rem;
-        }
-
-        .nav-menu a {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: var(--text-muted);
-        }
-
-        .nav-menu a:hover {
-            color: var(--vibrant-purple);
-        }
-
-        /* --- HERO --- */
-        #hero {
-            min-height: calc(100vh - 105px);
-            display: flex;
-            align-items: center;
-            position: relative;
-            background: radial-gradient(circle at 80% 20%, var(--lilac-tint) 0%, transparent 45%),
-                        radial-gradient(circle at 10% 80%, var(--pink-soft) 0%, transparent 35%);
-        }
-
-        .hero-grid {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 4rem;
-            align-items: center;
-        }
-
-        .hero-title {
-            font-size: 4rem;
-            line-height: 1.15;
-            margin-bottom: 2rem;
-        }
-
-        .hero-title span {
-            color: var(--vibrant-purple);
-            font-family: var(--font-serif);
-            font-style: italic;
-            font-weight: 400;
-        }
-
-        .hero-text {
-            font-size: 1.05rem;
-            color: var(--text-muted);
-            max-width: 500px;
-            margin-bottom: 2.5rem;
-        }
-
-        .editorial-link {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            font-weight: 500;
-            color: var(--vibrant-purple);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            border-bottom: 1px solid var(--vibrant-purple);
-            padding-bottom: 0.3rem;
-        }
-
-        .editorial-link:hover {
-            gap: 1rem;
+        a:hover {
             opacity: 0.7;
         }
 
-        .hero-showcase {
-            display: flex;
-            justify-content: center;
-            position: relative;
-        }
-
-        .art-frame {
-            width: 100%;
-            max-width: 340px;
-            height: 460px;
-            background-color: var(--bg-beige);
-            border-radius: 180px 180px 0 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 30px 60px rgba(43, 38, 37, 0.04);
-            position: relative;
-        }
-
-        .plate-graphic {
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            background: repeating-radial-gradient(circle, var(--lilac-tint), var(--lilac-tint) 6px, var(--bg-beige) 7px, var(--bg-beige) 12px);
-            box-shadow: inset 0 10px 20px rgba(0,0,0,0.05), 0 10px 25px rgba(0,0,0,0.03);
-            position: relative;
-        }
-
-        .plate-graphic.vibrant::before {
-            content: '';
-            position: absolute;
-            top: 25%; left: 25%; width: 50%; height: 50%;
-            border-radius: 50%;
-            background: radial-gradient(circle, var(--vibrant-purple) 0%, transparent 80%);
-            opacity: 0.4;
-        }
-
-        /* --- EDITORIAL SECTIONS --- */
-        section {
-            padding: 140px 0;
-        }
-
-        .section-header {
-            margin-bottom: 5rem;
-            max-width: 600px;
-        }
-
-        .section-tag {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            color: var(--vibrant-purple);
-            font-weight: 500;
-            margin-bottom: 1rem;
+        img {
+            max-width: 100%;
+            height: auto;
             display: block;
+            object-fit: cover;
         }
 
-        .section-headline {
-            font-size: 2.8rem;
-            line-height: 1.2;
+        section {
+            padding: 8rem 10% 8rem 10%;
         }
 
-        /* --- GALLERY GRID --- */
-        #collection {
-            background-color: #F9F7F2;
-        }
-
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 3rem;
-        }
-
-        .gallery-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .image-aspect-container {
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 0;
             width: 100%;
-            padding-bottom: 135%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 5%;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .nav-logo {
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 3rem;
+            font-size: 0.8rem;
+            font-family: var(--font-header);
+            letter-spacing: 0.1em;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 120px; /* Accounts for fixed nav */
             background-color: var(--bg-cream);
-            position: relative;
+            gap: 5%;
+        }
+
+        .hero-text {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .hero-text h1 {
+            font-size: 2.5rem;
+            line-height: 1.3;
             margin-bottom: 1.5rem;
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+        }
+
+        .hero-image-wrapper {
+            flex: 1;
+            height: 75vh;
+            background-color: #EAEAEA; /* Placeholder color */
             overflow: hidden;
-            border-top: 3px solid transparent;
-            transition: var(--transition);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.03);
         }
 
-        .gallery-item:hover .image-aspect-container {
-            border-top-color: var(--vibrant-purple);
-            box-shadow: 0 15px 30px rgba(124, 58, 237, 0.05);
+        .hero-image-wrapper img {
+            width: 100%;
+            height: 100%;
         }
 
-        .gallery-art-mock {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+        /* --- BUTTONS --- */
+        .btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            border: 1px solid var(--text-dark);
+            font-size: 0.8rem;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--text-dark);
+            color: var(--primary-white);
+            opacity: 1;
+        }
+
+        /* --- PATTERN INTERLUDE --- */
+        .pattern-divider {
+            height: 250px;
+            background-color: var(--brand-periwinkle);
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+            position: relative;
         }
 
-        .item-title {
-            font-family: var(--font-serif);
-            font-size: 1.4rem;
-            margin-bottom: 0.3rem;
-            transition: var(--transition);
+        /* Modern interpretation of your waves using simple styled markup */
+        .wave-graphic {
+            font-family: var(--font-header);
+            font-size: 8rem;
+            color: rgba(255, 255, 255, 0.15);
+            user-select: none;
+            white-space: nowrap;
         }
 
-        .gallery-item:hover .item-title {
-            color: var(--vibrant-purple);
+        /* --- GALLERY / COLLECTION --- */
+        .collection {
+            background-color: var(--primary-white);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 4rem;
+            text-align: center;
+        }
+
+        .editorial-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 4rem 2rem;
+            align-items: center;
+        }
+
+        .grid-item {
+            position: relative;
+        }
+
+        /* Asymmetric Layout Rules */
+        .item-1 { grid-column: 1 / span 7; }
+        .item-2 { grid-column: 9 / span 4; margin-top: 5rem; }
+        .item-3 { grid-column: 2 / span 4; }
+        .item-4 { grid-column: 7 / span 6; }
+
+        .image-container {
+            background-color: var(--bg-cream);
+            overflow: hidden;
+            margin-bottom: 1rem;
+            aspect-ratio: 3 / 4;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .grid-item:hover .image-container img {
+            transform: scale(1.03);
         }
 
         .item-meta {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
+            font-family: var(--font-header);
+            font-size: 0.75rem;
             letter-spacing: 0.05em;
-        }
-
-        /* --- PHILOSOPHY MATRIX --- */
-        .philosophy-grid {
-            display: grid;
-            grid-template-columns: 0.9fr 1.1fr;
-            gap: 6rem;
-            align-items: center;
-        }
-
-        .philosophy-text p {
-            font-size: 1.1rem;
-            color: var(--text-muted);
-            margin-bottom: 1.8rem;
-        }
-        
-        .philosophy-text p:first-of-type {
-            color: var(--text-dark);
-            font-size: 1.3rem;
-            font-family: var(--font-serif);
-            line-height: 1.6;
-        }
-
-        .decor-wavy-shapes {
-            width: 100%;
-            max-width: 400px;
-            height: 400px;
-            background: linear-gradient(135deg, var(--vibrant-purple) 0%, var(--lilac-tint) 100%);
-            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-            position: relative;
-            opacity: 0.85;
-        }
-
-        /* --- CONTACT INQUIRIES --- */
-        #inquiries {
-            background-color: var(--bg-beige);
-        }
-
-        .form-split {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-        }
-
-        .form-minimal {
             display: flex;
-            flex-direction: column;
-            gap: 2.5rem;
-        }
-
-        .field-group {
-            position: relative;
-        }
-
-        .input-minimal {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid rgba(43, 38, 37, 0.2);
-            padding: 0.6rem 0;
-            font-family: var(--font-sans);
-            font-size: 1rem;
+            justify-content: space-between;
             color: var(--text-dark);
-            transition: var(--transition);
         }
 
-        .input-minimal:focus {
-            outline: none;
-            border-bottom-color: var(--vibrant-purple);
-        }
-
-        .label-minimal {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+        .item-type {
             color: var(--text-muted);
-            display: block;
-            margin-bottom: 0.5rem;
+            font-family: var(--font-body);
+            font-style: italic;
+            text-transform: none;
         }
 
-        .btn-submit {
-            background: var(--text-dark);
-            color: var(--bg-cream);
-            border: none;
-            padding: 1rem 2.5rem;
-            font-family: var(--font-sans);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            align-self: flex-start;
-            cursor: pointer;
-            transition: var(--transition);
+        /* --- STORY SECTION --- */
+        .story {
+            background-color: var(--bg-cream);
+            display: flex;
+            align-items: center;
+            gap: 10%;
         }
 
-        .btn-submit:hover {
-            background-color: var(--vibrant-purple);
-            color: white;
+        .story-img {
+            flex: 1;
+            aspect-ratio: 1 / 1;
+            background-color: #EAEAEA;
         }
 
-        /* --- FOOTER --- */
+        .story-content {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .story-content h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .story-content p {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        /* --- FOOTER & SIGNUP --- */
         footer {
-            padding: 5rem 0;
-            border-top: 1px solid rgba(43, 38, 37, 0.05);
+            background-color: var(--brand-periwinkle);
+            color: var(--primary-white);
+            padding: 6rem 10% 3rem 10%;
             text-align: center;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            letter-spacing: 0.05em;
         }
 
-        /* --- RESPONSIVE MODIFICATIONS --- */
-        @media (max-width: 868px) {
-            .hero-grid, .gallery-grid, .philosophy-grid, .form-split {
-                grid-template-columns: 1fr;
-                gap: 3rem;
+        .footer-content {
+            max-width: 600px;
+            margin: 0auto 4rem auto;
+        }
+
+        .footer-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-content p {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 10px;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .newsletter-form input[type="email"] {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-bottom: 1px solid var(--primary-white);
+            background: transparent;
+            color: var(--primary-white);
+            font-family: var(--font-body);
+            font-size: 1rem;
+        }
+
+        .newsletter-form input[type="email"]::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .newsletter-form input[type="email"]:focus {
+            outline: none;
+            border-bottom-color: var(--text-dark);
+        }
+
+        .footer-btn {
+            background: var(--primary-white);
+            color: var(--brand-periwinkle);
+            border: none;
+            padding: 1rem 2rem;
+            font-family: var(--font-header);
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .footer-btn:hover {
+            background-color: var(--text-dark);
+            color: var(--primary-white);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-family: var(--font-header);
+            opacity: 0.8;
+        }
+
+        .socials {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        /* --- RESPONSIVE DESIGN (TABLETS & MOBILE) --- */
+        @media (max-width: 968px) {
+            section { padding: 5rem 5%; }
+            
+            .hero {
+                flex-direction: column-reverse;
+                height: auto;
+                text-align: center;
+                padding-bottom: 5rem;
             }
-            .hero-title { font-size: 2.8rem; }
-            .nav-menu { display: none; }
-            .section-headline { font-size: 2.2rem; }
+            .hero-image-wrapper {
+                width: 100%;
+                height: 50vh;
+                margin-bottom: 3rem;
+            }
+            .hero-text { max-width: 100%; }
+
+            .editorial-grid { display: flex; flex-direction: column; gap: 3rem; }
+            .item-2 { margin-top: 0; }
+
+            .story { flex-direction: column; gap: 3rem; }
+            
+            .footer-bottom {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            .socials { justify-content: center; }
         }
     </style>
 </head>
 <body>
 
-    <div class="wavy-top-ribbon"></div>
+    <nav>
+        <div class="nav-logo">L'Atelier Damla</div>
+        <ul class="nav-links">
+            <li><a href="#collection">Collection</a></li>
+            <li><a href="#story">The Story</a></li>
+            <li><a href="#connect">Connect</a></li>
+        </ul>
+    </nav>
 
-    <header>
-        <div class="container nav">
-            <div class="brand-name">
-                <div class="logo-mark">
-                    <div class="logo-ripple r1"></div>
-                    <div class="logo-ripple r2"></div>
-                    <div class="logo-ripple r3"></div>
-                </div>
-                L'Atelier <span>Damla</span>
-            </div>
-            <div class="nav-menu">
-                <a href="#collection">The Gallery</a>
-                <a href="#philosophy">Our Philosophy</a>
-                <a href="#inquiries">Studio Contact</a>
-            </div>
+    <section class="hero">
+        <div class="hero-text">
+            <h1>Slowly crafted, intentionally designed.</h1>
+            <p>Modern handmade ceramics created for the quiet rituals of daily living.</p>
+            <a href="#collection" class="btn">Explore Collection</a>
         </div>
-    </header>
+        <div class="hero-image-wrapper">
+            <img src="https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?auto=format&fit=crop&w=1200&q=80" alt="L'Atelier Damla Ceramics">
+        </div>
+    </section>
 
-    <section id="hero">
-        <div class="container hero-grid">
-            <div>
-                <h1 class="hero-title">Objects designed for <span>tactile quietude</span>.</h1>
-                <p class="hero-text">L'Atelier Damla is an editorial ceramic workshop specializing in slow-form clay. We explore the structural intersection of deep amethyst minerals and fluid carved waves.</p>
-                <a href="#collection" class="editorial-link">Explore Curated Batch</a>
+    <div class="pattern-divider">
+        <div class="wave-graphic">~~~~~~~~ ~~~~~~~~</div>
+    </div>
+
+    <section id="collection" class="collection">
+        <h2 class="section-title">Selected Works</h2>
+        
+        <div class="editorial-grid">
+            <div class="grid-item item-1">
+                <div class="image-container">
+                    <img src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=800&q=80" alt="Minimalist Vase">
+                </div>
+                <div class="item-meta">
+                    <span>01. THE ORGANICA VASE</span>
+                    <span class="item-type">Hand-thrown stoneware</span>
+                </div>
             </div>
-            <div class="hero-showcase">
-                <div class="art-frame">
-                    <div class="plate-graphic vibrant"></div>
+
+            <div class="grid-item item-2">
+                <div class="image-container">
+                    <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80" alt="Ceramic Ritual Cup">
+                </div>
+                <div class="item-meta">
+                    <span>02. MORNING RITUAL CUP</span>
+                    <span class="item-type">Matte glaze</span>
+                </div>
+            </div>
+
+            <div class="grid-item item-3">
+                <div class="image-container">
+                    <img src="https://images.unsplash.com/photo-1606744824163-985d376605aa?auto=format&fit=crop&w=600&q=80" alt="Sculptural Bowl">
+                </div>
+                <div class="item-meta">
+                    <span>03. TACTILE BOWL</span>
+                    <span class="item-type">Raw clay exterior</span>
+                </div>
+            </div>
+
+            <div class="grid-item item-4">
+                <div class="image-container">
+                    <img src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?auto=format&fit=crop&w=800&q=80" alt="Stoneware Pitcher">
+                </div>
+                <div class="item-meta">
+                    <span>04. EARTHEN PITCHER</span>
+                    <span class="item-type">Limited edition</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="collection">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-tag">Form Studies</span>
-                <h2 class="section-headline">The Ripple & Amethyst Series</h2>
-            </div>
-            
-            <div class="gallery-grid">
-                <div class="gallery-item">
-                    <div class="image-aspect-container">
-                        <div class="gallery-art-mock" style="background: radial-gradient(circle, var(--lilac-tint) 10%, transparent 70%);">
-                            <div class="plate-graphic vibrant" style="transform: scale(0.85);"></div>
-                        </div>
-                    </div>
-                    <h3 class="item-title">Concentric Amethyst Plate</h3>
-                    <span class="item-meta">Thrown Stoneware / Deep Violet Glaze</span>
-                </div>
-
-                <div class="gallery-item">
-                    <div class="image-aspect-container">
-                        <div class="gallery-art-mock" style="background: linear-gradient(to bottom, var(--pink-soft), transparent);">
-                            <div class="plate-graphic" style="transform: scale(0.7); opacity: 0.85;"></div>
-                        </div>
-                    </div>
-                    <h3 class="item-title">Morning Lilac Basin</h3>
-                    <span class="item-meta">Pinch-Formed / Soft Satin Finish</span>
-                </div>
-
-                <div class="gallery-item">
-                    <div class="image-aspect-container">
-                        <div class="gallery-art-mock" style="background: radial-gradient(at bottom left, var(--lilac-tint), transparent);">
-                            <div class="plate-graphic vibrant" style="transform: scale(0.75); filter: saturate(1.5);"></div>
-                        </div>
-                    </div>
-                    <h3 class="item-title">Rhythmic Wavy Vase</h3>
-                    <span class="item-meta">Coiled Sculpture / High-Alkali Fired</span>
-                </div>
-            </div>
+    <section id="story" class="story">
+        <div class="story-img">
+            <img src="https://images.unsplash.com/photo-1565192647048-f997ed87f5e2?auto=format&fit=crop&w=800&q=80" alt="Ceramics Studio Process" style="width:100%; height:100%;">
+        </div>
+        <div class="story-content">
+            <h2>The Philosophy</h2>
+            <p>At L'Atelier Damla, every piece begins as a raw lump of earth and evolves through patience, touch, and time. We embrace the subtle imperfections that make handmade objects entirely unique.</p>
+            <p>Created mindfully in small studio batches, our pieces are designed to bring tactile beauty and groundedness to your ordinary, everyday moments.</p>
         </div>
     </section>
 
-    <section id="philosophy">
-        <div class="container philosophy-grid">
-            <div style="display: flex; justify-content: center;">
-                <div class="decor-wavy-shapes"></div>
-            </div>
-            <div class="philosophy-text">
-                <span class="section-tag">The Slow Movement</span>
-                <h2 class="section-headline" style="margin-bottom: 2rem;">Every ribbon is a signature of time.</h2>
-                <p>At L'Atelier Damla, we challenge mechanical production. Our workshop explores complex mineral glazing, firing clay at extreme temperatures to draw out bright indigo, magenta, and amethyst crystal clusters.</p>
-                <p>Hand-carving techniques snake naturally across the stoneware surfaces, ensuring each object remains a unique tactile artifact designed for intentional daily presence.</p>
-            </div>
+    <footer id="connect">
+        <div class="footer-content">
+            <h3>Join the Atelier</h3>
+            <p>Be the first to hear about upcoming studio drops, custom collections, and studio insights.</p>
+            <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Thank you for subscribing!');">
+                <input type="email" placeholder="Your email address" required>
+                <button type="submit" class="footer-btn">SUBSCRIBE</button>
+            </form>
         </div>
-    </section>
-
-    <section id="inquiries">
-        <div class="container">
-            <div class="form-split">
-                <div>
-                    <span class="section-tag">Studio Inquiries</span>
-                    <h2 class="section-headline">Let's Connect</h2>
-                    <p style="margin-top: 1.5rem; color: var(--text-muted); max-width: 400px;">For architectural commissions, studio placement opportunities, custom gallery installations, or design updates, drop us a line below.</p>
-                </div>
-                <div>
-                    <form class="form-minimal" onsubmit="event.preventDefault(); alert('Inquiry received. Thank you for connecting with L\'Atelier Damla.');">
-                        <div class="field-group">
-                            <label class="label-minimal">Name</label>
-                            <input type="text" class="input-minimal" required>
-                        </div>
-                        <div class="field-group">
-                            <label class="label-minimal">Email Address</label>
-                            <input type="email" class="input-minimal" required>
-                        </div>
-                        <div class="field-group">
-                            <label class="label-minimal">Type of Placement</label>
-                            <input type="text" class="input-minimal" placeholder="e.g. Gallery Placement, Interior Commission">
-                        </div>
-                        <div class="field-group">
-                            <label class="label-minimal">Message</label>
-                            <textarea class="input-minimal" rows="3" required style="resize:none; font-family:var(--font-sans);"></textarea>
-                        </div>
-                        <button type="submit" class="btn-submit">Submit Request</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2026 L'Atelier Damla Studio. Handcrafted by design.</p>
+        
+        <div class="footer-bottom">
+            <div>&copy; 2026 L'Atelier Damla. All rights reserved.</div>
+            <ul class="socials">
+                <li><a href="#" target="_blank">Instagram</a></li>
+                <li><a href="#" target="_blank">Pinterest</a></li>
+                <li><a href="#" target="_blank">Journal</a></li>
+            </ul>
         </div>
     </footer>
 
