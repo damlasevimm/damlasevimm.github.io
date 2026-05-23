@@ -71,6 +71,7 @@
         }
 
         /* --- NAVIGATION --- */
+        /* --- NAVIGATION --- */
         nav {
             position: fixed;
             top: 0;
@@ -79,15 +80,17 @@
             justify-content: space-between;
             align-items: center;
             padding: 2rem 5%;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             z-index: 1000;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            /* 🌟 Added a crisp, subtle lilac border line under the header */
+            border-bottom: 5px solid var(--brand-periwinkle); 
         }
 
         .nav-logo {
             font-size: 1.2rem;
             font-weight: 400;
+            color: var(--text-dark);
         }
 
         .nav-links {
@@ -96,7 +99,18 @@
             gap: 3rem;
             font-size: 0.8rem;
             font-family: var(--font-header);
-            letter-spacing: 0.1em;
+            letter-spacing: 0.15em;
+        }
+
+        .nav-links a {
+            color: var(--text-dark);
+            transition: color 0.3s ease; /* Smooth color fade */
+        }
+
+        /* 🌟 When a user hovers over a menu link, it turns into your lilac brand color */
+        .nav-links a:hover {
+            color: var(--brand-periwinkle);
+            opacity: 1; /* Overrides the previous generic transparency fade */
         }
 
         /* --- HERO SECTION --- */
@@ -105,7 +119,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-top: 120px; /* Accounts for fixed nav */
+            padding-top: 230px; /* Accounts for fixed nav */
             background-color: var(--bg-cream);
             gap: 5%;
         }
@@ -387,6 +401,19 @@
         /* --- RESPONSIVE DESIGN (TABLETS & MOBILE) --- */
         @media (max-width: 968px) {
             section { padding: 5rem 5%; }
+            .nav-logo {
+                font-size: 1rem;
+                font-weight: 400;
+                color: var(--text-dark);
+            }
+            .nav-links {
+                display: flex;
+                list-style: none;
+                gap: 2rem;
+                font-size: 0.7rem;
+                font-family: var(--font-header);
+                letter-spacing: 0.1em;
+            }
             
             .hero {
                 flex-direction: column-reverse;
