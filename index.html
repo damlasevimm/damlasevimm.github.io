@@ -82,7 +82,7 @@
 
         nav {
             display: flex;
-            gap: 2.5rem;
+            gap: 2.2rem;
         }
 
         nav a {
@@ -372,6 +372,7 @@
             padding: 9rem 4vw;
             background-color: var(--periwinkle-tint);
             border-top: 1px solid var(--periwinkle-mid);
+            border-bottom: 1px solid var(--periwinkle-mid);
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 6vw;
@@ -421,6 +422,115 @@
             letter-spacing: 0.22em;
             text-transform: uppercase;
             box-shadow: 0 10px 25px rgba(155, 167, 250, 0.4);
+        }
+
+        /* --- NEW: GROUP & PRIVATE WORKSHOPS SECTION --- */
+        .workshops {
+            padding: 9rem 4vw;
+            background-color: var(--white);
+        }
+
+        .workshop-intro {
+            max-width: 680px;
+            margin-bottom: 4.5rem;
+        }
+
+        .workshop-intro h2 {
+            font-size: clamp(2.4rem, 4vw, 3.6rem);
+            font-weight: 300;
+            line-height: 1.1;
+            margin-bottom: 1.2rem;
+        }
+
+        .workshop-intro h2 em {
+            color: var(--periwinkle);
+            font-style: italic;
+        }
+
+        .workshop-intro p {
+            font-size: 1.25rem;
+            line-height: 1.7;
+            color: var(--stone);
+            font-weight: 300;
+        }
+
+        .workshop-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2.2rem;
+            margin-bottom: 4rem;
+        }
+
+        .workshop-card {
+            background-color: var(--periwinkle-tint);
+            border: 1px solid var(--periwinkle-mid);
+            padding: 2.8rem 2.2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            position: relative;
+        }
+
+        .workshop-card:hover {
+            border-color: var(--periwinkle);
+            transform: translateY(-6px);
+            box-shadow: 12px 12px 0px var(--periwinkle);
+            background-color: var(--white);
+        }
+
+        .workshop-num {
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            letter-spacing: 0.22em;
+            color: var(--periwinkle-deep);
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .workshop-card h3 {
+            font-size: 1.85rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: var(--ink);
+        }
+
+        .workshop-card p {
+            font-size: 1.1rem;
+            line-height: 1.65;
+            color: var(--stone);
+            margin-bottom: 2rem;
+        }
+
+        .workshop-meta {
+            border-top: 1px solid var(--periwinkle-mid);
+            padding-top: 1rem;
+            font-family: var(--font-sans);
+            font-size: 0.68rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--periwinkle-deep);
+        }
+
+        .workshop-cta-banner {
+            background: linear-gradient(135deg, var(--periwinkle-tint) 0%, var(--white) 100%);
+            border: 1.5px solid var(--periwinkle);
+            padding: 3rem 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .workshop-cta-text h4 {
+            font-size: 1.9rem;
+            font-weight: 400;
+            margin-bottom: 0.4rem;
+        }
+
+        .workshop-cta-text p {
+            font-size: 1.15rem;
+            color: var(--stone);
         }
 
         /* --- FULL LILAC FOOTER & SUBSCRIBE --- */
@@ -547,6 +657,8 @@
 
         /* --- RESPONSIVE --- */
         @media (max-width: 960px) {
+            nav { gap: 1.2rem; }
+            nav a { font-size: 0.65rem; letter-spacing: 0.12em; }
             .hero, .manifesto {
                 grid-template-columns: 1fr;
                 gap: 4rem;
@@ -558,6 +670,8 @@
             .piece-2, .piece-4 { margin-top: 0; }
             .manifesto-visual img { box-shadow: -12px 12px 0px var(--periwinkle); }
             .studio-tag { right: 1rem; }
+            .workshop-grid { grid-template-columns: 1fr; }
+            .workshop-cta-banner { flex-direction: column; text-align: center; padding: 2.5rem 1.8rem; }
             .footer-bar { flex-direction: column; gap: 1.5rem; text-align: center; }
         }
     </style>
@@ -570,6 +684,7 @@
         <nav>
             <a href="#works">Works</a>
             <a href="#atelier">Atelier</a>
+            <a href="#workshops">Workshops</a>
             <a href="#connect">Connect</a>
         </nav>
     </header>
@@ -675,6 +790,52 @@
         <div class="manifesto-visual">
             <img src="./images/inprog.jpeg" alt="Hands shaping clay in studio">
             <div class="studio-tag">Handcrafted in Small Batches</div>
+        </div>
+    </section>
+
+    <!-- GROUP & PRIVATE WORKSHOPS -->
+    <section id="workshops" class="workshops">
+        <div class="workshop-intro">
+            <div class="eyebrow">Gather & Create</div>
+            <h2>Private & Group <em>Workshops</em></h2>
+            <p>Alongside studio collections, L'Atelier Damla hosts tailored, hands-on ceramic sessions upon request—designed to slow down, explore raw clay, and create together in an intimate setting.</p>
+        </div>
+
+        <div class="workshop-grid">
+            <div class="workshop-card">
+                <div>
+                    <span class="workshop-num">01 / INTIMATE GATHERINGS</span>
+                    <h3>Private Group Sessions</h3>
+                    <p>Bespoke hand-building sessions for birthdays, bridal celebrations, or creative afternoons with friends. Learn pinching, coiling, and slab techniques to shape your own tableware.</p>
+                </div>
+                <div class="workshop-meta">4 – 10 Guests &bull; All Materials & Firing Included</div>
+            </div>
+
+            <div class="workshop-card">
+                <div>
+                    <span class="workshop-num">02 / CREATIVE OFF-SITES</span>
+                    <h3>Team & Corporate Experiences</h3>
+                    <p>A mindful, tactile alternative to traditional team events. Guided step-by-step from raw stoneware to finished glazed pieces, fostering focus, conversation, and shared creativity.</p>
+                </div>
+                <div class="workshop-meta">Custom Group Sizes &bull; Studio or On-Location</div>
+            </div>
+
+            <div class="workshop-card">
+                <div>
+                    <span class="workshop-num">03 / CURATED COLLABORATIONS</span>
+                    <h3>Brand & Pop-Up Events</h3>
+                    <p>Thoughtfully designed ceramic workshops tailored for creative brands, private dinners, and editorial launches—complete with custom clay stamps and curated glazing palettes.</p>
+                </div>
+                <div class="workshop-meta">Bespoke Concept &bull; Tailored to Your Event</div>
+            </div>
+        </div>
+
+        <div class="workshop-cta-banner">
+            <div class="workshop-cta-text">
+                <h4>Planning a group gathering or creative session?</h4>
+                <p>Reach out with your preferred dates and group size to design a custom workshop experience.</p>
+            </div>
+            <a href="mailto:info@latelierdamla.com?subject=Group%20Workshop%20Inquiry%20%E2%80%94%20L'Atelier%20Damla" class="cta-pill">Inquire for Workshops &rarr;</a>
         </div>
     </section>
 
