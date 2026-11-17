@@ -16,11 +16,12 @@
     <style>
         :root {
             --white: #FFFFFF;
-            --alabaster: #F9F9FB;
-            --periwinkle: #9BA7FA; /* Sourced directly from your business card */
-            --periwinkle-soft: rgba(155, 167, 250, 0.14);
-            --ink: #141414;
-            --stone: #6E6E73;
+            --periwinkle: #9BA7FA;         /* Primary lilac from your business card */
+            --periwinkle-deep: #7B89EB;    /* Richer accent for hover & depth */
+            --periwinkle-tint: #F3F5FF;    /* Soft ethereal lilac wash for sections */
+            --periwinkle-mid: #E2E6FE;     /* Soft lilac borders & frames */
+            --ink: #161722;                /* Deep midnight-charcoal that harmonizes with lilac */
+            --stone: #5C5F73;
             --font-display: 'Cormorant Garamond', serif;
             --font-sans: 'Montserrat', sans-serif;
         }
@@ -43,17 +44,17 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- SUBTLE ARCHITECTURAL HEADER --- */
+        /* --- LILAC-INFUSED ARCHITECTURAL HEADER --- */
         header {
             position: fixed;
             top: 0;
             width: 100%;
-            padding: 1.5rem 4vw;
+            padding: 1.4rem 4vw;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(12px);
+            background: rgba(243, 245, 255, 0.88);
+            backdrop-filter: blur(14px);
             border-bottom: 1px solid var(--periwinkle);
             z-index: 1000;
         }
@@ -61,11 +62,22 @@
         .brand-mark {
             font-family: var(--font-sans);
             font-size: 0.95rem;
-            font-weight: 400;
+            font-weight: 500;
             letter-spacing: 0.28em;
             text-transform: uppercase;
             color: var(--ink);
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .brand-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--periwinkle);
+            display: inline-block;
         }
 
         nav {
@@ -91,28 +103,29 @@
             bottom: 0;
             left: 0;
             width: 0%;
-            height: 1px;
+            height: 1.5px;
             background-color: var(--periwinkle);
             transition: width 0.35s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         nav a:hover {
-            color: var(--periwinkle);
+            color: var(--periwinkle-deep);
         }
 
         nav a:hover::after {
             width: 100%;
         }
 
-        /* --- AVANT-GARDE HERO SECTION --- */
+        /* --- AVANT-GARDE HERO WITH LILAC GRADIENT WASH --- */
         .hero {
             min-height: 100vh;
-            padding: 8rem 4vw 4rem 4vw;
+            padding: 8.5rem 4vw 5rem 4vw;
             display: grid;
             grid-template-columns: 1.1fr 0.9fr;
             gap: 4vw;
             align-items: center;
             position: relative;
+            background: linear-gradient(135deg, var(--periwinkle-tint) 0%, var(--white) 55%, var(--periwinkle-tint) 100%);
         }
 
         .hero-left {
@@ -125,18 +138,19 @@
             font-size: 0.72rem;
             letter-spacing: 0.25em;
             text-transform: uppercase;
-            color: var(--periwinkle);
+            color: var(--periwinkle-deep);
             margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
             gap: 1rem;
+            font-weight: 500;
         }
 
         .eyebrow::before {
             content: '';
             display: inline-block;
-            width: 32px;
-            height: 1px;
+            width: 36px;
+            height: 1.5px;
             background-color: var(--periwinkle);
         }
 
@@ -151,7 +165,7 @@
         .hero-title em {
             font-style: italic;
             color: var(--periwinkle);
-            font-weight: 300;
+            font-weight: 400;
         }
 
         .hero-sub {
@@ -172,21 +186,23 @@
             letter-spacing: 0.2em;
             text-transform: uppercase;
             text-decoration: none;
-            color: var(--ink);
-            padding: 1.1rem 2.2rem;
-            border: 1px solid var(--ink);
+            background-color: var(--periwinkle);
+            color: var(--white);
+            padding: 1.15rem 2.4rem;
+            border: 1px solid var(--periwinkle);
             border-radius: 50px;
+            box-shadow: 0 12px 28px rgba(155, 167, 250, 0.35);
             transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .cta-pill:hover {
-            background-color: var(--periwinkle);
-            border-color: var(--periwinkle);
-            color: var(--white);
+            background-color: var(--ink);
+            border-color: var(--ink);
             transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(22, 23, 34, 0.2);
         }
 
-        /* Archival Sculptural Frame + Card Pattern Motif */
+        /* Archival Sculptural Frame + Rich Lilac Shadow */
         .hero-right {
             position: relative;
             display: flex;
@@ -196,12 +212,13 @@
 
         .arch-frame {
             width: 100%;
-            max-width: 480px;
+            max-width: 470px;
             aspect-ratio: 3 / 4;
             border-radius: 240px 240px 0 0;
             overflow: hidden;
             position: relative;
-            box-shadow: 24px 24px 0px var(--periwinkle-soft);
+            border: 2px solid var(--periwinkle);
+            box-shadow: 24px 24px 0px var(--periwinkle);
         }
 
         .arch-frame img {
@@ -218,14 +235,15 @@
         /* Floating SVG inspired directly by your business card's concentric waves */
         .floating-motif {
             position: absolute;
-            bottom: -35px;
-            left: -35px;
-            width: 140px;
-            height: 140px;
+            bottom: -30px;
+            left: -25px;
+            width: 138px;
+            height: 138px;
             background: var(--periwinkle);
+            border: 3px solid var(--white);
             border-radius: 50%;
-            padding: 18px;
-            box-shadow: 0 15px 35px rgba(155, 167, 250, 0.35);
+            padding: 16px;
+            box-shadow: 0 15px 35px rgba(155, 167, 250, 0.45);
             animation: slowSpin 28s linear infinite;
         }
 
@@ -248,7 +266,6 @@
         .pattern-svg-repeat {
             width: 100%;
             height: 100%;
-            opacity: 0.92;
         }
 
         /* --- EXHIBITION / CURATED WORKS --- */
@@ -261,7 +278,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            border-bottom: 1px solid rgba(20, 20, 20, 0.12);
+            border-bottom: 1.5px solid var(--periwinkle);
             padding-bottom: 1.5rem;
             margin-bottom: 5rem;
         }
@@ -276,14 +293,17 @@
             font-size: 0.72rem;
             letter-spacing: 0.2em;
             text-transform: uppercase;
-            color: var(--stone);
+            color: var(--periwinkle-deep);
+            background-color: var(--periwinkle-tint);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
         }
 
         /* Staggered Gallery Lookbook */
         .gallery-showcase {
             display: grid;
             grid-template-columns: repeat(12, 1fr);
-            gap: 4rem 2.5rem;
+            gap: 4.5rem 2.5rem;
         }
 
         .art-piece {
@@ -297,9 +317,16 @@
 
         .art-img-box {
             overflow: hidden;
-            background-color: var(--alabaster);
+            background-color: var(--periwinkle-tint);
             margin-bottom: 1.2rem;
             position: relative;
+            border: 1px solid var(--periwinkle-mid);
+            transition: box-shadow 0.5s ease, border-color 0.5s ease;
+        }
+
+        .art-piece:hover .art-img-box {
+            border-color: var(--periwinkle);
+            box-shadow: 14px 14px 0px var(--periwinkle-tint);
         }
 
         .piece-1 .art-img-box { aspect-ratio: 4 / 5; }
@@ -322,7 +349,7 @@
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            border-top: 1px solid rgba(20, 20, 20, 0.1);
+            border-top: 1px solid var(--periwinkle);
             padding-top: 0.85rem;
         }
 
@@ -331,18 +358,20 @@
             font-size: 0.78rem;
             letter-spacing: 0.16em;
             text-transform: uppercase;
+            color: var(--ink);
         }
 
         .art-detail {
             font-size: 1.05rem;
             font-style: italic;
-            color: var(--stone);
+            color: var(--periwinkle-deep);
         }
 
-        /* --- STUDIO MANIFESTO (THE STORY) --- */
+        /* --- STUDIO MANIFESTO (SOFT LILAC SECTION) --- */
         .manifesto {
             padding: 9rem 4vw;
-            background-color: var(--alabaster);
+            background-color: var(--periwinkle-tint);
+            border-top: 1px solid var(--periwinkle-mid);
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 6vw;
@@ -357,7 +386,8 @@
         }
 
         .manifesto-quote em {
-            color: var(--periwinkle);
+            color: var(--periwinkle-deep);
+            font-weight: 400;
         }
 
         .manifesto-body {
@@ -375,22 +405,25 @@
             width: 100%;
             aspect-ratio: 4 / 5;
             object-fit: cover;
+            border: 2px solid var(--periwinkle);
+            box-shadow: -20px 20px 0px var(--periwinkle);
         }
 
         .studio-tag {
             position: absolute;
             top: 2rem;
             right: -1.5rem;
-            background: var(--white);
-            border: 1px solid var(--periwinkle);
-            padding: 0.8rem 1.5rem;
+            background: var(--periwinkle);
+            color: var(--white);
+            padding: 0.85rem 1.6rem;
             font-family: var(--font-sans);
             font-size: 0.68rem;
             letter-spacing: 0.22em;
             text-transform: uppercase;
+            box-shadow: 0 10px 25px rgba(155, 167, 250, 0.4);
         }
 
-        /* --- CENTERED LILAC FOOTER & SUBSCRIBE --- */
+        /* --- FULL LILAC FOOTER & SUBSCRIBE --- */
         footer {
             background-color: var(--periwinkle);
             color: var(--white);
@@ -416,7 +449,7 @@
         .footer-inner p {
             font-size: 1.2rem;
             line-height: 1.6;
-            opacity: 0.92;
+            opacity: 0.95;
             margin-bottom: 2.8rem;
             font-weight: 300;
         }
@@ -432,25 +465,26 @@
 
         .newsletter-form input[type="email"] {
             width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.75);
-            padding: 0.9rem 0.5rem;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50px;
+            padding: 1rem 1.5rem;
             color: var(--white);
             font-family: var(--font-display);
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             text-align: center;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .newsletter-form input[type="email"]::placeholder {
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.8);
             font-style: italic;
         }
 
         .newsletter-form input[type="email"]:focus {
             outline: none;
-            border-bottom-color: var(--white);
+            background: rgba(255, 255, 255, 0.24);
+            border-color: var(--white);
         }
 
         .subscribe-btn {
@@ -458,9 +492,10 @@
             color: var(--ink);
             border: none;
             border-radius: 50px;
-            padding: 1rem 3rem;
+            padding: 1rem 3.2rem;
             font-family: var(--font-sans);
             font-size: 0.75rem;
+            font-weight: 500;
             letter-spacing: 0.22em;
             text-transform: uppercase;
             cursor: pointer;
@@ -474,7 +509,7 @@
         }
 
         .footer-bar {
-            border-top: 1px solid rgba(255, 255, 255, 0.25);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
             padding-top: 2rem;
             display: flex;
             justify-content: space-between;
@@ -516,10 +551,12 @@
                 grid-template-columns: 1fr;
                 gap: 4rem;
             }
-            .hero { padding-top: 7rem; }
+            .hero { padding-top: 7.5rem; }
+            .arch-frame { box-shadow: 14px 14px 0px var(--periwinkle); }
             .floating-motif { width: 110px; height: 110px; left: 10px; bottom: -20px; }
             .gallery-showcase { display: flex; flex-direction: column; gap: 4rem; }
             .piece-2, .piece-4 { margin-top: 0; }
+            .manifesto-visual img { box-shadow: -12px 12px 0px var(--periwinkle); }
             .studio-tag { right: 1rem; }
             .footer-bar { flex-direction: column; gap: 1.5rem; text-align: center; }
         }
@@ -529,7 +566,7 @@
 
     <!-- HEADER -->
     <header>
-        <a href="#" class="brand-mark">L'Atelier Damla</a>
+        <a href="#" class="brand-mark"><span class="brand-dot"></span>L'Atelier Damla</a>
         <nav>
             <a href="#works">Works</a>
             <a href="#atelier">Atelier</a>
@@ -597,7 +634,7 @@
 
             <article class="art-piece piece-2">
                 <div class="art-img-box">
-                    <img src="./images/green_cups.jpeg" alt="Ritual Espresso Cup">
+                    <img src="./images/shore_cup.jpeg" alt="Ritual Espresso Cup">
                 </div>
                 <div class="art-caption">
                     <span class="art-title">No. 02 — Ritual Cup</span>
@@ -607,7 +644,7 @@
 
             <article class="art-piece piece-3">
                 <div class="art-img-box">
-                    <img src="./images/shore_cup.jpeg" alt="Sculptural Pedestal Bowl">
+                    <img src="./images/green_cups.jpeg" alt="Sculptural Pedestal Bowl">
                 </div>
                 <div class="art-caption">
                     <span class="art-title">No. 03 — Solitude Bowl</span>
