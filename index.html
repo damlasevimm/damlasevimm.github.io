@@ -1,38 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-063FT10HL1"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-063FT10HL1');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>L'Atelier Damla | Handmade Ceramics</title>
+    <title>L'ATELIER DAMLA — Sculptural Ceramics</title>
     
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     
+    <!-- Artistic Editorial Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+
     <style>
-        /* --- BRAND DESIGN SYSTEM --- */
         :root {
-            --primary-white: #FFFFFF;
-            --bg-cream: #FBFBFA;
-            --brand-periwinkle: #A0ACF8; /* Matched to your business card */
-            --text-dark: #1C1C1C;
-            --text-muted: #666666;
-            --font-header: 'Montserrat', sans-serif;
-            --font-body: 'Lora', serif;
+            --white: #FFFFFF;
+            --alabaster: #F9F9FB;
+            --periwinkle: #9BA7FA; /* Sourced directly from your business card */
+            --periwinkle-soft: rgba(155, 167, 250, 0.14);
+            --ink: #141414;
+            --stone: #6E6E73;
+            --font-display: 'Cormorant Garamond', serif;
+            --font-sans: 'Montserrat', sans-serif;
         }
 
-        /* --- GLOBAL STYLES --- */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -41,516 +33,636 @@
 
         html {
             scroll-behavior: smooth;
+            background-color: var(--white);
+            color: var(--ink);
         }
 
         body {
-            font-family: var(--font-body);
-            color: var(--text-dark);
-            background-color: var(--primary-white);
-            line-height: 1.7;
+            font-family: var(--font-display);
+            overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
-        h1, h2, h3, h4, .nav-logo, .btn {
-            font-family: var(--font-header);
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            font-weight: 300;
-        }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-            transition: opacity 0.3s ease;
-        }
-
-        a:hover {
-            opacity: 0.7;
-        }
-
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            object-fit: cover;
-        }
-
-        section {
-            padding: 8rem 10% 8rem 10%;
-        }
-
-        /* --- NAVIGATION --- */
-        /* --- NAVIGATION --- */
-        nav {
+        /* --- SUBTLE ARCHITECTURAL HEADER --- */
+        header {
             position: fixed;
             top: 0;
             width: 100%;
+            padding: 1.5rem 4vw;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 2rem 5%;
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--periwinkle);
             z-index: 1000;
-            /* 🌟 Added a crisp, subtle lilac border line under the header */
-            border-bottom: 5px solid var(--brand-periwinkle); 
         }
 
-        .nav-logo {
-            font-size: 1.2rem;
+        .brand-mark {
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
             font-weight: 400;
-            color: var(--text-dark);
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--ink);
+            text-decoration: none;
         }
 
-        .nav-links {
+        nav {
             display: flex;
-            list-style: none;
-            gap: 3rem;
-            font-size: 0.8rem;
-            font-family: var(--font-header);
-            letter-spacing: 0.15em;
+            gap: 2.5rem;
         }
 
-        .nav-links a {
-            color: var(--text-dark);
-            transition: color 0.3s ease; /* Smooth color fade */
+        nav a {
+            font-family: var(--font-sans);
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--ink);
+            position: relative;
+            padding-bottom: 4px;
+            transition: color 0.3s ease;
         }
 
-        /* 🌟 When a user hovers over a menu link, it turns into your lilac brand color */
-        .nav-links a:hover {
-            color: var(--brand-periwinkle);
-            opacity: 1; /* Overrides the previous generic transparency fade */
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background-color: var(--periwinkle);
+            transition: width 0.35s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* --- HERO SECTION --- */
-        .hero {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: 230px; /* Accounts for fixed nav */
-            background-color: var(--bg-cream);
-            gap: 5%;
+        nav a:hover {
+            color: var(--periwinkle);
         }
 
-        .hero-text {
-            flex: 1;
-            max-width: 500px;
-        }
-
-        .hero-text h1 {
-            font-size: 2.5rem;
-            line-height: 1.3;
-            margin-bottom: 1.5rem;
-        }
-
-        .hero-text p {
-            font-size: 1.1rem;
-            color: var(--text-muted);
-            margin-bottom: 2.5rem;
-        }
-
-        .hero-image-wrapper {
-            flex: 1;
-            height: 75vh;
-            background-color: #EAEAEA; /* Placeholder color */
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.03);
-        }
-
-        .hero-image-wrapper img {
+        nav a:hover::after {
             width: 100%;
-            height: 100%;
         }
 
-        /* --- BUTTONS --- */
-        .btn {
-            display: inline-block;
-            padding: 1rem 2.5rem;
-            border: 1px solid var(--text-dark);
-            font-size: 0.8rem;
-            background: transparent;
-            cursor: pointer;
-            transition: all 0.4s ease;
-        }
-
-        .btn:hover {
-            background-color: var(--text-dark);
-            color: var(--primary-white);
-            opacity: 1;
-        }
-
-        /* --- PATTERN INTERLUDE --- */
-        .pattern-divider {
-            height: 250px;
-            background-color: var(--brand-periwinkle);
-            display: flex;
+        /* --- AVANT-GARDE HERO SECTION --- */
+        .hero {
+            min-height: 100vh;
+            padding: 8rem 4vw 4rem 4vw;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 4vw;
             align-items: center;
-            justify-content: center;
-            overflow: hidden;
             position: relative;
         }
 
-        /* Modern interpretation of your waves using simple styled markup */
-        .wave-graphic {
-            font-family: var(--font-header);
-            font-size: 8rem;
-            color: rgba(255, 255, 255, 0.15);
-            user-select: none;
-            white-space: nowrap;
+        .hero-left {
+            position: relative;
+            z-index: 2;
         }
 
-        /* --- GALLERY / COLLECTION --- */
-        .collection {
-            background-color: var(--primary-white);
+        .eyebrow {
+            font-family: var(--font-sans);
+            font-size: 0.72rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--periwinkle);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
-        .section-title {
-            font-size: 1.8rem;
-            margin-bottom: 4rem;
-            text-align: center;
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 32px;
+            height: 1px;
+            background-color: var(--periwinkle);
         }
 
-        .editorial-grid {
+        .hero-title {
+            font-size: clamp(3.2rem, 6vw, 5.8rem);
+            font-weight: 300;
+            line-height: 0.98;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--periwinkle);
+            font-weight: 300;
+        }
+
+        .hero-sub {
+            font-size: 1.35rem;
+            line-height: 1.6;
+            color: var(--stone);
+            max-width: 460px;
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+
+        .cta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--ink);
+            padding: 1.1rem 2.2rem;
+            border: 1px solid var(--ink);
+            border-radius: 50px;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .cta-pill:hover {
+            background-color: var(--periwinkle);
+            border-color: var(--periwinkle);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        /* Archival Sculptural Frame + Card Pattern Motif */
+        .hero-right {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .arch-frame {
+            width: 100%;
+            max-width: 480px;
+            aspect-ratio: 3 / 4;
+            border-radius: 240px 240px 0 0;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 24px 24px 0px var(--periwinkle-soft);
+        }
+
+        .arch-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .arch-frame:hover img {
+            transform: scale(1.04);
+        }
+
+        /* Floating SVG inspired directly by your business card's concentric waves */
+        .floating-motif {
+            position: absolute;
+            bottom: -35px;
+            left: -35px;
+            width: 140px;
+            height: 140px;
+            background: var(--periwinkle);
+            border-radius: 50%;
+            padding: 18px;
+            box-shadow: 0 15px 35px rgba(155, 167, 250, 0.35);
+            animation: slowSpin 28s linear infinite;
+        }
+
+        @keyframes slowSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* --- KINETIC PATTERN RIBBON (BUSINESS CARD TRIBUTE) --- */
+        .pattern-ribbon {
+            width: 100%;
+            height: 160px;
+            background-color: var(--periwinkle);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .pattern-svg-repeat {
+            width: 100%;
+            height: 100%;
+            opacity: 0.92;
+        }
+
+        /* --- EXHIBITION / CURATED WORKS --- */
+        .exhibition {
+            padding: 9rem 4vw;
+            background-color: var(--white);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 1px solid rgba(20, 20, 20, 0.12);
+            padding-bottom: 1.5rem;
+            margin-bottom: 5rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2.4rem, 4vw, 3.6rem);
+            font-weight: 300;
+        }
+
+        .section-header span {
+            font-family: var(--font-sans);
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--stone);
+        }
+
+        /* Staggered Gallery Lookbook */
+        .gallery-showcase {
             display: grid;
             grid-template-columns: repeat(12, 1fr);
-            gap: 4rem 2rem;
-            align-items: center;
+            gap: 4rem 2.5rem;
         }
 
-        .grid-item {
+        .art-piece {
             position: relative;
         }
 
-        /* Asymmetric Layout Rules */
-        .item-1 { grid-column: 1 / span 7; }
-        .item-2 { grid-column: 9 / span 4; margin-top: 5rem; }
-        .item-3 { grid-column: 2 / span 4; }
-        .item-4 { grid-column: 7 / span 6; }
+        .piece-1 { grid-column: 1 / span 6; }
+        .piece-2 { grid-column: 8 / span 5; margin-top: 7rem; }
+        .piece-3 { grid-column: 2 / span 4; }
+        .piece-4 { grid-column: 7 / span 6; margin-top: -3rem; }
 
-        .image-container {
-            background-color: var(--bg-cream);
+        .art-img-box {
             overflow: hidden;
-            margin-bottom: 1rem;
-            aspect-ratio: 3 / 4;
+            background-color: var(--alabaster);
+            margin-bottom: 1.2rem;
+            position: relative;
         }
 
-        .image-container img {
+        .piece-1 .art-img-box { aspect-ratio: 4 / 5; }
+        .piece-2 .art-img-box { aspect-ratio: 1 / 1; border-radius: 50% 50% 0 0; }
+        .piece-3 .art-img-box { aspect-ratio: 3 / 4; }
+        .piece-4 .art-img-box { aspect-ratio: 16 / 11; }
+
+        .art-img-box img {
             width: 100%;
             height: 100%;
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            object-fit: cover;
+            transition: transform 0.9s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        .grid-item:hover .image-container img {
-            transform: scale(1.03);
+        .art-piece:hover .art-img-box img {
+            transform: scale(1.05);
         }
 
-        .item-meta {
-            font-family: var(--font-header);
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
+        .art-caption {
             display: flex;
             justify-content: space-between;
-            color: var(--text-dark);
+            align-items: baseline;
+            border-top: 1px solid rgba(20, 20, 20, 0.1);
+            padding-top: 0.85rem;
         }
 
-        .item-type {
-            color: var(--text-muted);
-            font-family: var(--font-body);
-            font-style: italic;
-            text-transform: none;
+        .art-title {
+            font-family: var(--font-sans);
+            font-size: 0.78rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
         }
 
-        /* --- STORY SECTION --- */
-        .story {
-            background-color: var(--bg-cream);
-            display: flex;
-            align-items: center;
-            gap: 10%;
-        }
-
-        .story-img {
-            flex: 1;
-            aspect-ratio: 1 / 1;
-            background-color: #EAEAEA;
-        }
-
-        .story-content {
-            flex: 1;
-            max-width: 500px;
-        }
-
-        .story-content h2 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .story-content p {
+        .art-detail {
             font-size: 1.05rem;
-            color: var(--text-muted);
-            margin-bottom: 1.5rem;
+            font-style: italic;
+            color: var(--stone);
         }
 
-        /* --- FOOTER & SIGNUP --- */
+        /* --- STUDIO MANIFESTO (THE STORY) --- */
+        .manifesto {
+            padding: 9rem 4vw;
+            background-color: var(--alabaster);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6vw;
+            align-items: center;
+        }
+
+        .manifesto-quote {
+            font-size: clamp(2rem, 3.2vw, 2.9rem);
+            line-height: 1.25;
+            font-weight: 300;
+            margin-bottom: 2rem;
+        }
+
+        .manifesto-quote em {
+            color: var(--periwinkle);
+        }
+
+        .manifesto-body {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: var(--stone);
+            margin-bottom: 2rem;
+        }
+
+        .manifesto-visual {
+            position: relative;
+        }
+
+        .manifesto-visual img {
+            width: 100%;
+            aspect-ratio: 4 / 5;
+            object-fit: cover;
+        }
+
+        .studio-tag {
+            position: absolute;
+            top: 2rem;
+            right: -1.5rem;
+            background: var(--white);
+            border: 1px solid var(--periwinkle);
+            padding: 0.8rem 1.5rem;
+            font-family: var(--font-sans);
+            font-size: 0.68rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+        }
+
+        /* --- CENTERED LILAC FOOTER & SUBSCRIBE --- */
         footer {
-            background-color: var(--brand-periwinkle);
-            color: var(--primary-white);
-            padding: 6rem 10% 3rem 10%;
+            background-color: var(--periwinkle);
+            color: var(--white);
+            padding: 7rem 4vw 3rem 4vw;
             text-align: center;
+            position: relative;
         }
 
-        .footer-content {
-            max-width: 600px;
-            margin: 0 auto 4rem auto;
+        .footer-inner {
+            max-width: 560px;
+            margin: 0 auto 5rem auto;
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center-aligns all text and forms */
+            align-items: center;
         }
 
-        .footer-content h3 {
-            font-size: 1.5rem;
+        .footer-inner h3 {
+            font-size: clamp(2.2rem, 4vw, 3.2rem);
+            font-weight: 300;
             margin-bottom: 1rem;
         }
 
-        .footer-content p {
-            font-size: 1rem;
-            margin-bottom: 2.5rem;
-            opacity: 0.9;
+        .footer-inner p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            opacity: 0.92;
+            margin-bottom: 2.8rem;
+            font-weight: 300;
         }
 
-        /* Perfectly centered and stacked layout for mobile/desktop */
         .newsletter-form {
+            width: 100%;
+            max-width: 420px;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
             align-items: center;
+            gap: 1.6rem;
         }
 
         .newsletter-form input[type="email"] {
             width: 100%;
-            padding: 1rem;
-            border: none;
-            border-bottom: 1px solid var(--primary-white);
             background: transparent;
-            color: var(--primary-white);
-            font-family: var(--font-body);
-            font-size: 1rem;
-            text-align: center; /* Centers the typing text */
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.75);
+            padding: 0.9rem 0.5rem;
+            color: var(--white);
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            text-align: center;
+            transition: border-color 0.3s ease;
         }
 
         .newsletter-form input[type="email"]::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.7);
+            font-style: italic;
         }
 
         .newsletter-form input[type="email"]:focus {
             outline: none;
-            border-bottom-color: var(--text-dark);
+            border-bottom-color: var(--white);
         }
 
-        .footer-btn {
-            background: var(--primary-white);
-            color: var(--brand-periwinkle);
+        .subscribe-btn {
+            background-color: var(--white);
+            color: var(--ink);
             border: none;
+            border-radius: 50px;
             padding: 1rem 3rem;
-            font-family: var(--font-header);
-            font-size: 0.8rem;
-            letter-spacing: 0.15em;
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: all 0.3s ease;
-            width: auto;
+            transition: all 0.35s ease;
         }
 
-        .footer-btn:hover {
-            background-color: var(--text-dark);
-            color: var(--primary-white);
+        .subscribe-btn:hover {
+            background-color: var(--ink);
+            color: var(--white);
+            transform: translateY(-2px);
         }
 
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        .footer-bar {
+            border-top: 1px solid rgba(255, 255, 255, 0.25);
             padding-top: 2rem;
             display: flex;
             justify-content: space-between;
-            font-size: 0.8rem;
-            font-family: var(--font-header);
-            opacity: 0.8;
-        }
-        .socials {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-            align-items: center; /* Vertically aligns icon and text */
+            align-items: center;
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            letter-spacing: 0.14em;
         }
 
-        .instagram-link {
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 2.2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem; /* Space between the logo and the text */
-        }
-
-        /* Styling the inline SVG icon */
-        .instagram-icon {
-            width: 16px;
-            height: 16px;
-            fill: currentColor; /* Forces the icon to match your white text color */
+            gap: 0.5rem;
             transition: opacity 0.3s ease;
         }
 
-        @media (max-width: 968px) {
-            .footer-bottom {
-                flex-direction: column;
-                gap: 1.5rem;
-                text-align: center;
-            }
-            .socials { justify-content: center; }
+        .footer-links a:hover {
+            opacity: 0.75;
         }
 
-        /* --- RESPONSIVE DESIGN (TABLETS & MOBILE) --- */
-        @media (max-width: 968px) {
-            section { padding: 5rem 5%; }
-            .nav-logo {
-                font-size: 1rem;
-                font-weight: 400;
-                color: var(--text-dark);
-            }
-            .nav-links {
-                display: flex;
-                list-style: none;
-                gap: 2rem;
-                font-size: 0.7rem;
-                font-family: var(--font-header);
-                letter-spacing: 0.1em;
-            }
-            
-            .hero {
-                flex-direction: column-reverse;
-                height: auto;
-                text-align: center;
-                padding-bottom: 5rem;
-            }
-            .hero-image-wrapper {
-                width: 100%;
-                height: 50vh;
-                margin-bottom: 3rem;
-            }
-            .hero-text { max-width: 100%; }
+        .ig-svg {
+            width: 15px;
+            height: 15px;
+            fill: currentColor;
+        }
 
-            .editorial-grid { display: flex; flex-direction: column; gap: 3rem; }
-            .item-2 { margin-top: 0; }
-
-            .story { flex-direction: column; gap: 3rem; }
-            
-            .footer-bottom {
-                flex-direction: column;
-                gap: 1.5rem;
-                text-align: center;
+        /* --- RESPONSIVE --- */
+        @media (max-width: 960px) {
+            .hero, .manifesto {
+                grid-template-columns: 1fr;
+                gap: 4rem;
             }
-            .socials { justify-content: center; }
+            .hero { padding-top: 7rem; }
+            .floating-motif { width: 110px; height: 110px; left: 10px; bottom: -20px; }
+            .gallery-showcase { display: flex; flex-direction: column; gap: 4rem; }
+            .piece-2, .piece-4 { margin-top: 0; }
+            .studio-tag { right: 1rem; }
+            .footer-bar { flex-direction: column; gap: 1.5rem; text-align: center; }
         }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="nav-logo">L'Atelier Damla</div>
-        <ul class="nav-links">
-            <li><a href="#collection">Collection</a></li>
-            <li><a href="#story">The Story</a></li>
-            <li><a href="#connect">Connect</a></li>
-        </ul>
-    </nav>
+    <!-- HEADER -->
+    <header>
+        <a href="#" class="brand-mark">L'Atelier Damla</a>
+        <nav>
+            <a href="#works">Works</a>
+            <a href="#atelier">Atelier</a>
+            <a href="#connect">Connect</a>
+        </nav>
+    </header>
 
+    <!-- HERO SECTION -->
     <section class="hero">
-        <div class="hero-text">
-            <h1>Slowly crafted, intentionally designed.</h1>
-            <p>Modern handmade ceramics created for the quiet rituals of daily living.</p>
-            <a href="#collection" class="btn">Explore Collection</a>
+        <div class="hero-left">
+            <div class="eyebrow">Small-Batch Ceramic Objects</div>
+            <h1 class="hero-title">Form shaped by <em>stillness</em> & earth.</h1>
+            <p class="hero-sub">Hand-built and wheel-thrown stoneware celebrating organic curves, raw mineral textures, and quiet daily rituals.</p>
+            <a href="#works" class="cta-pill">View Exhibition &rarr;</a>
         </div>
-        <div class="hero-image-wrapper">
-            <img src="./images/heart_plates.jpeg" alt="L'Atelier Damla Ceramics">
+
+        <div class="hero-right">
+            <div class="arch-frame">
+                <img src="./images/heart_plates.jpeg" alt="Sculptural ceramic vessel">
+            </div>
+            <!-- Concentric Wave Emblem inspired by your business card -->
+            <div class="floating-motif" aria-hidden="true">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 10C72.0914 10 90 27.9086 90 50C90 72.0914 72.0914 90 50 90" stroke="white" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M50 24C64.3594 24 76 35.6406 76 50C76 64.3594 64.3594 76 50 76" stroke="white" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M50 38C56.6274 38 62 43.3726 62 50C62 56.6274 56.6274 62 50 62" stroke="white" stroke-width="6" stroke-linecap="round"/>
+                    <circle cx="50" cy="50" r="4" fill="white"/>
+                </svg>
+            </div>
         </div>
     </section>
 
-    <div class="pattern-divider">
-        <div class="wave-graphic">~~~~~~~~ ~~~~~~~~</div>
+    <!-- CUSTOM SVG PATTERN RIBBON (INSPIRED BY YOUR CARD'S WAVES) -->
+    <div class="pattern-ribbon" aria-hidden="true">
+        <svg class="pattern-svg-repeat" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="damla-waves" x="0" y="0" width="160" height="160" patternUnits="userSpaceOnUse">
+                    <path d="M0 80 C 40 20, 120 20, 160 80" fill="none" stroke="#FFFFFF" stroke-width="10"/>
+                    <path d="M0 115 C 40 55, 120 55, 160 115" fill="none" stroke="#FFFFFF" stroke-width="10"/>
+                    <path d="M0 150 C 40 90, 120 90, 160 150" fill="none" stroke="#FFFFFF" stroke-width="10"/>
+                    <path d="M0 45 C 40 -15, 120 -15, 160 45" fill="none" stroke="#FFFFFF" stroke-width="10"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#damla-waves)"/>
+        </svg>
     </div>
 
-    <section id="collection" class="collection">
-        <h2 class="section-title">Selected Works</h2>
-        
-        <div class="editorial-grid">
-            <div class="grid-item item-1">
-                <div class="image-container">
-                    <img src="./images/ocean_cup.jpeg" alt="Ocean Cup">
-                </div>
-                <div class="item-meta">
-                    <span>01. THE OCEAN CUP</span>
-                    <span class="item-type">Hand-thrown stoneware</span>
-                </div>
-            </div>
+    <!-- EXHIBITION / SELECTED WORKS -->
+    <section id="works" class="exhibition">
+        <div class="section-header">
+            <h2>Selected Works</h2>
+            <span>Collection 01 — Stoneware</span>
+        </div>
 
-            <div class="grid-item item-2">
-                <div class="image-container">
-                    <img src="./images/green_cups.jpeg" alt="Meadow Cups">
+        <div class="gallery-showcase">
+            <article class="art-piece piece-1">
+                <div class="art-img-box">
+                    <img src="./images/ocean_cup.jpeg" alt="The Organica Vessel">
                 </div>
-                <div class="item-meta">
-                    <span>02. MEADOW CUPS</span>
-                    <span class="item-type">Matte glaze</span>
+                <div class="art-caption">
+                    <span class="art-title">No. 01 — Organica Vessel</span>
+                    <span class="art-detail">Speckled stoneware, satin glaze</span>
                 </div>
-            </div>
+            </article>
 
-            <div class="grid-item item-3">
-                <div class="image-container">
-                    <img src="./images/colored_plate.jpeg" alt="Cotton Candy Plate">
+            <article class="art-piece piece-2">
+                <div class="art-img-box">
+                    <img src="./images/green_cups.jpeg" alt="Ritual Espresso Cup">
                 </div>
-                <div class="item-meta">
-                    <span>03. COTTON CANDY PLATE</span>
-                    <span class="item-type">Multiple colors</span>
+                <div class="art-caption">
+                    <span class="art-title">No. 02 — Ritual Cup</span>
+                    <span class="art-detail">Wheel-thrown, unglazed foot</span>
                 </div>
-            </div>
+            </article>
 
-            <div class="grid-item item-4">
-                <div class="image-container">
-                    <img src="./images/shore_cup.jpeg" alt="Shore Cup">
+            <article class="art-piece piece-3">
+                <div class="art-img-box">
+                    <img src="./images/shore_cup.jpeg" alt="Sculptural Pedestal Bowl">
                 </div>
-                <div class="item-meta">
-                    <span>04. SHORE CUP</span>
-                    <span class="item-type">Limited edition</span>
+                <div class="art-caption">
+                    <span class="art-title">No. 03 — Solitude Bowl</span>
+                    <span class="art-detail">Raw grogged clay</span>
                 </div>
-            </div>
+            </article>
+
+            <article class="art-piece piece-4">
+                <div class="art-img-box">
+                    <img src="./images/colored_plate.jpeg" alt="Fluid Carafe">
+                </div>
+                <div class="art-caption">
+                    <span class="art-title">No. 04 — Ripple Carafe</span>
+                    <span class="art-detail">Limited studio edition</span>
+                </div>
+            </article>
         </div>
     </section>
 
-    <section id="story" class="story">
-        <div class="story-img">
-            <img src="./images/inprog.jpeg" alt="Ceramics Studio Process" style="width:100%; height:100%;">
+    <!-- THE ATELIER / STORY -->
+    <section id="atelier" class="manifesto">
+        <div>
+            <div class="eyebrow">The Philosophy</div>
+            <h2 class="manifesto-quote">Every curve holds the memory of <em>touch, water, and fire.</em></h2>
+            <p class="manifesto-body">At L'Atelier Damla, ceramics are approached as functional sculptures. Working in slow, intentional batches, we embrace the subtle asymmetries and mineral textures that occur naturally when raw clay meets the wheel.</p>
+            <p class="manifesto-body">Each object is made to be held, used, and lived with—bringing quiet architectural beauty to everyday spaces.</p>
         </div>
-        <div class="story-content">
-            <h2>The Philosophy</h2>
-            <p>At L'Atelier Damla, every piece begins as a raw lump of earth and evolves through patience, touch, and time. We embrace the subtle imperfections that make handmade objects entirely unique.</p>
-            <p>Created mindfully in small studio batches, our pieces are designed to bring tactile beauty and groundedness to your ordinary, everyday moments.</p>
+        <div class="manifesto-visual">
+            <img src="./images/inprog.jpeg" alt="Hands shaping clay in studio">
+            <div class="studio-tag">Handcrafted in Small Batches</div>
         </div>
     </section>
 
+    <!-- CENTERED FOOTER & SUBSCRIBE -->
     <footer id="connect">
-        <div class="footer-content">
+        <div class="footer-inner">
             <h3>Join the Atelier</h3>
-            <p>Be the first to hear about upcoming studio drops, custom collections, and studio insights.</p>
+            <p>Receive private invitations to upcoming studio drops, exhibition previews, and small-batch releases.</p>
+            
             <form class="newsletter-form" action="https://api.web3forms.com/submit" method="POST">
-                <input type="hidden" name="access_key" value="055e475f-961d-401b-8a23-ca41542c764b">
-                <input type="email" name="Subscriber Email" placeholder="Your email address" required>
-                <button type="submit" class="footer-btn">SUBSCRIBE</button>
+                <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE">
+                <input type="hidden" name="subject" value="New Website Subscriber — L'Atelier Damla">
+                <input type="hidden" name="from_name" value="L'Atelier Damla Website">
+                
+                <input type="email" name="email" placeholder="Enter your email address" required>
+                <button type="submit" class="subscribe-btn">Subscribe</button>
             </form>
         </div>
-        
-        <div class="footer-bottom">
-            <div>&copy; 2026 L'Atelier Damla. All rights reserved.</div>
-            <ul class="socials">
+
+        <div class="footer-bar">
+            <div>&copy; 2026 L'ATELIER DAMLA</div>
+            <ul class="footer-links">
                 <li>
-                    <a href="https://instagram.com/latelierdamla" target="_blank" class="instagram-link">
-                        <svg class="instagram-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <a href="https://instagram.com/latelierdamla" target="_blank" rel="noopener">
+                        <svg class="ig-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
                         </svg>
                         <span>@latelierdamla</span>
