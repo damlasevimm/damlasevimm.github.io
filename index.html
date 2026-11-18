@@ -84,7 +84,7 @@
 
         nav {
             display: flex;
-            gap: 2.2rem;
+            gap: 2.1rem;
         }
 
         nav a {
@@ -140,7 +140,6 @@
             transition: transform 0.35s ease, opacity 0.35s ease;
         }
 
-        /* Animate hamburger into an X when open */
         .menu-toggle.is-active span:nth-child(1) {
             transform: translateY(6.5px) rotate(45deg);
         }
@@ -230,6 +229,7 @@
             border-radius: 50px;
             box-shadow: 0 12px 28px rgba(155, 167, 250, 0.35);
             transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            white-space: nowrap;
         }
 
         .cta-pill:hover {
@@ -292,7 +292,7 @@
         /* --- KINETIC PATTERN RIBBON (BUSINESS CARD TRIBUTE) --- */
         .pattern-ribbon {
             width: 100%;
-            height: 160px;
+            height: 170px;
             background-color: var(--periwinkle);
             position: relative;
             overflow: hidden;
@@ -573,6 +573,90 @@
             color: var(--stone);
         }
 
+        /* --- NEW: WHOLESALE, CUSTOM ORDERS & COLLABORATIONS --- */
+        .commissions {
+            padding: 9rem 4vw;
+            background-color: var(--periwinkle-tint);
+            border-top: 1px solid var(--periwinkle-mid);
+        }
+
+        .commissions-layout {
+            display: grid;
+            grid-template-columns: 0.95fr 1.05fr;
+            gap: 6vw;
+            align-items: start;
+        }
+
+        .commissions-lead h2 {
+            font-size: clamp(2.4rem, 4vw, 3.6rem);
+            font-weight: 300;
+            line-height: 1.08;
+            margin-bottom: 1.5rem;
+        }
+
+        .commissions-lead h2 em {
+            color: var(--periwinkle-deep);
+            font-style: italic;
+        }
+
+        .commissions-lead p {
+            font-size: 1.22rem;
+            line-height: 1.75;
+            color: var(--stone);
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+        }
+
+        .commission-list {
+            display: flex;
+            flex-direction: column;
+            border-top: 1.5px solid var(--periwinkle);
+        }
+
+        .commission-item {
+            padding: 2.2rem 0;
+            border-bottom: 1px solid var(--periwinkle);
+            display: grid;
+            grid-template-columns: 60px 1fr;
+            gap: 1.5rem;
+            align-items: baseline;
+            transition: padding-left 0.35s ease;
+        }
+
+        .commission-item:hover {
+            padding-left: 0.75rem;
+        }
+
+        .commission-index {
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            color: var(--periwinkle-deep);
+            font-weight: 500;
+        }
+
+        .commission-content h3 {
+            font-size: 1.85rem;
+            font-weight: 400;
+            margin-bottom: 0.65rem;
+            color: var(--ink);
+        }
+
+        .commission-content p {
+            font-size: 1.12rem;
+            line-height: 1.65;
+            color: var(--stone);
+            margin-bottom: 0.9rem;
+        }
+
+        .commission-tags {
+            font-family: var(--font-sans);
+            font-size: 0.66rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--periwinkle-deep);
+        }
+
         /* --- FULL LILAC FOOTER & SUBSCRIBE --- */
         footer {
             background-color: var(--periwinkle);
@@ -729,7 +813,7 @@
             }
 
             nav.is-open {
-                max-height: 320px;
+                max-height: 380px;
                 opacity: 1;
                 pointer-events: auto;
                 box-shadow: 0 20px 40px rgba(22, 23, 34, 0.08);
@@ -738,7 +822,7 @@
             nav a {
                 width: 100%;
                 text-align: center;
-                padding: 1.25rem 0;
+                padding: 1.2rem 0;
                 font-size: 0.78rem;
                 letter-spacing: 0.24em;
                 border-top: 1px solid var(--periwinkle-mid);
@@ -748,7 +832,7 @@
                 display: none;
             }
 
-            .hero, .manifesto {
+            .hero, .manifesto, .commissions-layout {
                 grid-template-columns: 1fr;
                 gap: 4rem;
             }
@@ -761,6 +845,7 @@
             .studio-tag { right: 1rem; }
             .workshop-grid { grid-template-columns: 1fr; }
             .workshop-cta-banner { flex-direction: column; text-align: center; padding: 2.5rem 1.8rem; }
+            .commission-item { grid-template-columns: 1fr; gap: 0.5rem; }
             .footer-bar { flex-direction: column; gap: 1.5rem; text-align: center; }
         }
     </style>
@@ -782,6 +867,7 @@
             <a href="#works">Works</a>
             <a href="#atelier">Atelier</a>
             <a href="#workshops">Workshops</a>
+            <a href="#commissions">Commissions</a>
             <a href="#connect">Connect</a>
         </nav>
     </header>
@@ -797,7 +883,7 @@
 
         <div class="hero-right">
             <div class="arch-frame">
-                <img src="./images/heart_plates.jpeg" alt="L'Atelier Damla Ceramics">
+                <img src="https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?auto=format&fit=crop&w=1000&q=85" alt="Sculptural ceramic vessel">
             </div>
             <!-- Concentric Wave Emblem inspired by your business card -->
             <div class="floating-motif" aria-hidden="true">
@@ -836,41 +922,41 @@
         <div class="gallery-showcase">
             <article class="art-piece piece-1">
                 <div class="art-img-box">
-                    <img src="./images/ocean_cup.jpeg" alt="Ocean Cup">
+                    <img src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=900&q=85" alt="The Organica Vessel">
                 </div>
                 <div class="art-caption">
-                    <span class="art-title">No. 01 — The Ocean Cup</span>
-                    <span class="art-detail">Hand-thrown stoneware</span>
+                    <span class="art-title">No. 01 — Organica Vessel</span>
+                    <span class="art-detail">Speckled stoneware, satin glaze</span>
                 </div>
             </article>
 
             <article class="art-piece piece-2">
                 <div class="art-img-box">
-                    <img src="./images/shore_cup.jpeg" alt="Shore Cup">
+                    <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=85" alt="Ritual Espresso Cup">
                 </div>
                 <div class="art-caption">
-                    <span class="art-title">No. 02 — The Shore Cup</span>
-                    <span class="art-detail">Limited studio edition</span>
+                    <span class="art-title">No. 02 — Ritual Cup</span>
+                    <span class="art-detail">Wheel-thrown, unglazed foot</span>
                 </div>
             </article>
 
             <article class="art-piece piece-3">
                 <div class="art-img-box">
-                    <img src="./images/green_cups.jpeg" alt="Meadow Cups">
+                    <img src="https://images.unsplash.com/photo-1606744824163-985d376605aa?auto=format&fit=crop&w=800&q=85" alt="Sculptural Pedestal Bowl">
                 </div>
                 <div class="art-caption">
-                    <span class="art-title">No. 03 — The Meadow Cups</span>
-                    <span class="art-detail">Matte glaze</span>
+                    <span class="art-title">No. 03 — Solitude Bowl</span>
+                    <span class="art-detail">Raw grogged clay</span>
                 </div>
             </article>
 
             <article class="art-piece piece-4">
                 <div class="art-img-box">
-                    <img src="./images/colored_plate.jpeg" alt="Cotton Candy Plate">
+                    <img src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?auto=format&fit=crop&w=1000&q=85" alt="Fluid Carafe">
                 </div>
                 <div class="art-caption">
-                    <span class="art-title">No. 04 — Cotton Candy Plate</span>
-                    <span class="art-detail">Multiple colors</span>
+                    <span class="art-title">No. 04 — Ripple Carafe</span>
+                    <span class="art-detail">Limited studio edition</span>
                 </div>
             </article>
         </div>
@@ -885,7 +971,7 @@
             <p class="manifesto-body">Each object is made to be held, used, and lived with—bringing quiet architectural beauty to everyday spaces.</p>
         </div>
         <div class="manifesto-visual">
-            <img src="./images/inprog.jpeg" alt="Hands shaping clay in studio">
+            <img src="https://images.unsplash.com/photo-1565192647048-f997ed87f5e2?auto=format&fit=crop&w=900&q=85" alt="Hands shaping clay in studio">
             <div class="studio-tag">Handcrafted in Small Batches</div>
         </div>
     </section>
@@ -936,6 +1022,47 @@
         </div>
     </section>
 
+    <!-- WHOLESALE, CUSTOM ORDERS & HOSPITALITY COLLABORATIONS -->
+    <section id="commissions" class="commissions">
+        <div class="commissions-layout">
+            <div class="commissions-lead">
+                <div class="eyebrow">Bespoke & Trade</div>
+                <h2>Wholesale, Custom Orders & <em>Collaborations</em></h2>
+                <p>L'Atelier Damla partners with restaurants, cafés, boutique hotels, interior stylists, and design-led shops to create tactile stoneware made specifically for your space and table.</p>
+                <a href="mailto:info@latelierdamla.com?subject=Custom%20Order%20%2F%20Wholesale%20Inquiry%20%E2%80%94%20L'Atelier%20Damla" class="cta-pill">Start a Project &rarr;</a>
+            </div>
+
+            <div class="commission-list">
+                <div class="commission-item">
+                    <span class="commission-index">01</span>
+                    <div class="commission-content">
+                        <h3>Restaurant & Hospitality Tableware</h3>
+                        <p>Custom plates, bowls, espresso cups, and serving vessels developed in close dialogue with chefs and sommeliers—crafted for durability, stacking, and memorable plating.</p>
+                        <div class="commission-tags">Custom Glazes &bull; Chef Collaborations &bull; Small to Medium Runs</div>
+                    </div>
+                </div>
+
+                <div class="commission-item">
+                    <span class="commission-index">02</span>
+                    <div class="commission-content">
+                        <h3>Wholesale & Concept Stores</h3>
+                        <p>Curated wholesale selections from our core collection for independent boutiques, galleries, and design stores seeking small-batch handmade ceramics.</p>
+                        <div class="commission-tags">Line Sheet Available &bull; Seasonal Drops</div>
+                    </div>
+                </div>
+
+                <div class="commission-item">
+                    <span class="commission-index">03</span>
+                    <div class="commission-content">
+                        <h3>Bespoke Commissions & Gifting</h3>
+                        <p>One-of-a-kind sculptural vessels for interior projects, custom tableware sets for private homes, and personalized ceramic editions for brand gifting.</p>
+                        <div class="commission-tags">Made to Order &bull; Custom Dimensions & Finishes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- CENTERED FOOTER & SUBSCRIBE -->
     <footer id="connect">
         <div class="footer-inner">
@@ -980,7 +1107,6 @@
             menuToggle.setAttribute('aria-expanded', isOpen);
         });
 
-        // Automatically close menu when a section link is clicked on mobile
         navLinks.forEach(link => {
             link.addEventListener('click', () => {
                 navMenu.classList.remove('is-open');
