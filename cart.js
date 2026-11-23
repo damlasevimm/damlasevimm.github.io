@@ -1,6 +1,6 @@
 (() => {
     // Replace with your deployed Cloudflare Worker URL once deployed (see worker/README.md)
-    const CHECKOUT_API_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev/create-checkout-session';
+    const CHECKOUT_API_URL = 'https://latelierdamla-checkout.damlasevimm.workers.dev/';
     const STORAGE_KEY = 'latelier_damla_cart_v1';
 
     function loadCart() {
