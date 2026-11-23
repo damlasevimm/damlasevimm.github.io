@@ -57,6 +57,11 @@
         /* Fine-tune Snipcart Typography to match your site */
         #snipcart {
             font-family: var(--font-sans) !important;
+            position: relative;
+            z-index: 1100;
+        }
+        .snipcart-modal__container {
+            z-index: 1100 !important;
         }
         #snipcart h1, #snipcart h2, #snipcart h3, .snipcart-cart-header__title {
             font-family: var(--font-display) !important;
@@ -1070,8 +1075,8 @@
                         data-item-price="30.00"
                         data-item-url="/"
                         data-item-description="Hand-thrown speckled stoneware vessel with satin glaze."
-                        data-item-image="./images/ocean_cup.jpeg"
-                        data-item-name="No. 01 — Organica Vessel">
+                        data-item-image="/images/ocean_cup.jpeg"
+                        data-item-name="No. 01 — The Ocean Cup">
                         + Add to Bag
                     </button>
                 </div>
@@ -1092,8 +1097,8 @@
                         data-item-id="shore-cup-02"
                         data-item-price="30.00"
                         data-item-url="/"
-                        data-item-description="Wheel-thrown stoneware cup with overlaping volcanic shore inspired glazes."
-                        data-item-image="./images/shore_cup.jpeg"
+                        data-item-description="Wheel-thrown stoneware cup with overlapping volcanic shore inspired glazes."
+                        data-item-image="/images/shore_cup.jpeg"
                         data-item-name="No. 02 — Shore Cup">
                         + Add to Bag
                     </button>
@@ -1116,8 +1121,8 @@
                         data-item-price="30.00"
                         data-item-url="/"
                         data-item-description="Sculptural cups shaped from raw stoneware."
-                        data-item-image="./images/green_cups.jpeg"
-                        data-item-name="No. 03 — Meadow Cups">
+                        data-item-image="/images/green_cups.jpeg"
+                        data-item-name="No. 03 — The Meadow Cups">
                         + Add to Bag
                     </button>
                 </div>
@@ -1139,7 +1144,7 @@
                         data-item-price="35.00"
                         data-item-url="/"
                         data-item-description="Hand-built dessert plate."
-                        data-item-image="./images/colored_plate.jpeg"
+                        data-item-image="/images/colored_plate.jpeg"
                         data-item-name="No. 04 — Cotton Candy Plate">
                         + Add to Bag
                     </button>
@@ -1285,7 +1290,7 @@
     <script>
         window.SnipcartSettings = {
             publicApiKey: 'OWU0ZTVlYWQtY2M4Mi00MGEwLTgwZjgtZWY5MDExN2RhNjViNjM5MzA3MDA0MTcxMjkwOTc2',
-            loadStrategy: 'on-user-interaction',
+            version: '3.7.1',
             currency: 'eur',
             modalStyle: 'side'
         };
