@@ -320,3 +320,45 @@
     text-transform: uppercase;
     color: var(--stone, #5C5F73);
 }
+
+/* --- LIVE INVENTORY BADGES & SOLD OUT STATES --- */
+.stock-note {
+    display: inline-block;
+    margin-left: 0.65rem;
+    margin-right: auto;
+    font-family: var(--font-sans, 'Montserrat', sans-serif);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--periwinkle-deep, #7B89EB);
+}
+
+.stock-note.is-sold-out {
+    color: var(--stone, #5C5F73);
+    opacity: 0.85;
+}
+
+.add-bag-btn.is-sold-out,
+.add-bag-btn:disabled {
+    background-color: #F4F4F8;
+    border-color: #D7D9E4;
+    color: var(--stone, #5C5F73);
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.8;
+}
+
+.cart-qty button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.cart-item-stock-limit {
+    margin-top: 0.35rem;
+    font-size: 0.64rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--periwinkle-deep, #7B89EB);
+}
+

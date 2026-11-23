@@ -1,34 +1,63 @@
-# Stripe Checkout Cloudflare Worker Setup
+# Stripe Checkout & Automatic Inventory Setup (Cloudflare Worker)
 
-Because GitHub Pages is static-only, your **Stripe Secret Key** (`sk_test_...` or `sk_live_...`) must live in a tiny serverless Worker rather than in your public HTML/JS. Cloudflare Workers' free tier gives you 100,000 requests/day at $0/month.
+Your Cloudflare Worker handles both **Stripe Checkout** and **automatic live inventory** using Cloudflare KV (free tier) + a Stripe Webhook.
 
-## 5-Minute Setup (No CLI Required)
+## 1. Update the Worker Code
+1. Open your Worker (`latelierdamla-checkout`) in [dash.cloudflare.com](https://dash.cloudflare.com/) → **Workers & Pages**.
+2. Click **Edit code**, replace everything with the contents of [`stripe-checkout-worker.js`](./stripe-checkout-worker.js), and click **Deploy**.
 
-1. **Get your Stripe Secret Key**
-   - Go to [Stripe Dashboard → Developers → API keys](https://dashboard.stripe.com/apikeys).
-   - Start in **Test mode** (`sk_test_...`) to verify checkout end-to-end, then swap to your **Live** key (`sk_live_...`) when ready.
+## 2. Create & Bind Your Cloudflare KV Inventory Store
+1. In Cloudflare Dashboard, go to **Storage & Databases → KV** → **Create a namespace**.
+   - Name it: `latelier-inventory`
+2. Open the namespace → **KV Pairs** and add one entry per product (using the exact product IDs):
+   | Key | Value (current stock) |
+   | --- | --- |
+   | `ocean-cup-01` | `3` |
+   | `shore-cup-02` | `3` |
+   | `meadow-cups-03` | `3` |
+   | `cotton-candy-plate-04` | `2` |
+   *(You can edit these numbers anytime right in the Cloudflare Dashboard—no code redeploy needed!)*
+3. Attach the KV namespace to your Worker:
+   - Go to **Workers & Pages → `latelierdamla-checkout` → Settings → Bindings → Add**.
+   - Choose **KV Namespace**.
+   - Variable name: `INVENTORY` *(exact spelling, all caps)*
+   - KV namespace: `latelier-inventory`
+   - Click **Save / Deploy**.
 
-2. **Deploy the Worker on Cloudflare**
-   - Sign in (or create a free account) at [dash.cloudflare.com](https://dash.cloudflare.com/).
-   - Go to **Workers & Pages → Create → Create Worker**.
-   - Name it (for example, `latelier-checkout`) and click **Deploy**.
-   - Click **Edit code**, delete the sample code, paste the full contents of [`stripe-checkout-worker.js`](./stripe-checkout-worker.js), and click **Deploy**.
-
-3. **Add your Stripe Secret Key**
-   - In your Worker page, go to **Settings → Variables and Secrets → Add**.
+## 3. Connect the Stripe Webhook (Auto-Decrement Stock on Paid Orders)
+1. Go to [Stripe Dashboard → Developers → Webhooks](https://dashboard.stripe.com/webhooks) *(make sure the Test/Live toggle matches your `STRIPE_SECRET_KEY`)*.
+2. Click **Add destination / Add endpoint**:
+   - Endpoint URL:
+     ```
+     https://latelierdamla-checkout.damlasevimm.workers.dev/stripe-webhook
+     ```
+   - Events to listen to:
+     - `checkout.session.completed`
+     - `checkout.session.async_payment_succeeded`
+3. After creating the webhook, reveal and copy its **Signing secret** (`whsec_...`).
+4. In Cloudflare Dashboard → **`latelierdamla-checkout` → Settings → Variables and Secrets → Add**:
    - Type: **Secret**
-   - Variable name: `STRIPE_SECRET_KEY`
-   - Value: your `sk_test_...` (or `sk_live_...`) key
+   - Variable name: `STRIPE_WEBHOOK_SECRET`
+   - Value: your `whsec_...` signing secret
    - Click **Deploy**.
 
-4. **Connect your website**
-   - Copy your Worker URL (e.g. `https://latelier-checkout.yourname.workers.dev`).
-   - Open [`../cart.js`](../cart.js) and replace `CHECKOUT_API_URL` on line 3 with:
-     ```js
-     const CHECKOUT_API_URL = 'https://latelier-checkout.yourname.workers.dev/create-checkout-session';
-     ```
-   - Commit and push to GitHub.
+## 4. Verify Everything Is Connected
+Open your Worker URL in a browser:
+`https://latelierdamla-checkout.damlasevimm.workers.dev/`
 
-## Customizing Products & Shipping
-- **Shipping cost / countries**: Edit `SHIPPING_OPTIONS` and `SHIPPING_COUNTRIES` near the top of [`stripe-checkout-worker.js`](./stripe-checkout-worker.js).
-- **Adding new items**: Add the item to `shop.html` (and `index.html` if featured) **and** add its matching ID & EUR price (in cents) to `CATALOG` in `stripe-checkout-worker.js`.
+You should see:
+```json
+{
+  "ok": true,
+  "service": "L'Atelier Damla Stripe Checkout",
+  "stripeConfigured": true,
+  "inventoryKvBound": true,
+  "webhookConfigured": true
+}
+```
+And visiting `https://latelierdamla-checkout.damlasevimm.workers.dev/inventory` shows your live stock counts!
+
+## Adding New Products Later
+1. Add the product card to `shop.html` (and `index.html` if featured).
+2. Add its matching ID, EUR price (in cents), and `defaultStock` to `CATALOG` in [`stripe-checkout-worker.js`](./stripe-checkout-worker.js) and click **Deploy**.
+3. Add its stock key/value in Cloudflare KV (`latelier-inventory`).

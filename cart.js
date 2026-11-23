@@ -1,7 +1,10 @@
 (() => {
-    // Replace with your deployed Cloudflare Worker URL once deployed (see worker/README.md)
+    // Your deployed Cloudflare Worker base URL (see worker/README.md)
     const CHECKOUT_API_URL = 'https://latelierdamla-checkout.damlasevimm.workers.dev/';
+    const WORKER_BASE_URL = CHECKOUT_API_URL.replace(/\/create-checkout-session\/?$/, '').replace(/\/+$/, '');
     const STORAGE_KEY = 'latelier_damla_cart_v1';
+
+    let liveStock = null; // Map of { [productId]: number } once loaded from Worker /inventory
 
     function loadCart() {
         try {
@@ -28,6 +31,11 @@
             minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
             maximumFractionDigits: 2
         }).format(amount);
+    }
+
+    function getStockFor(id) {
+        if (!liveStock || typeof liveStock[id] !== 'number') return null;
+        return liveStock[id];
     }
 
     let cart = loadCart();
@@ -87,6 +95,91 @@
         });
     }
 
+    function applyStockToProductCards() {
+        if (!liveStock) return;
+
+        document.querySelectorAll('[data-cart-add]').forEach(btn => {
+            const id = btn.dataset.itemId;
+            const available = getStockFor(id);
+            if (available === null) return;
+
+            const row = btn.closest('.art-purchase-row, .product-purchase-row');
+            const priceEl = row ? row.querySelector('.art-price, .product-price') : null;
+
+            let note = row ? row.querySelector('.stock-note') : null;
+            if (!note && priceEl) {
+                note = document.createElement('span');
+                note.className = 'stock-note';
+                priceEl.insertAdjacentElement('afterend', note);
+            }
+
+            if (available <= 0) {
+                btn.disabled = true;
+                btn.classList.add('is-sold-out');
+                btn.textContent = 'Sold Out';
+                if (note) {
+                    note.textContent = 'Sold Out';
+                    note.classList.add('is-sold-out');
+                }
+            } else {
+                btn.disabled = false;
+                btn.classList.remove('is-sold-out');
+                btn.textContent = '+ Add to Bag';
+                if (note) {
+                    note.classList.remove('is-sold-out');
+                    note.textContent = available <= 3 ? `Only ${available} left` : '';
+                }
+            }
+        });
+    }
+
+    function reconcileCartWithStock() {
+        if (!liveStock) return false;
+        let changed = false;
+
+        cart = cart.reduce((acc, item) => {
+            const available = getStockFor(item.id);
+            if (available === null) {
+                acc.push(item);
+                return acc;
+            }
+            if (available <= 0) {
+                changed = true;
+                return acc;
+            }
+            if (item.quantity > available) {
+                changed = true;
+                acc.push({ ...item, quantity: available });
+                return acc;
+            }
+            acc.push(item);
+            return acc;
+        }, []);
+
+        if (changed) {
+            saveCart(cart);
+        }
+        return changed;
+    }
+
+    async function fetchLiveInventory() {
+        if (WORKER_BASE_URL.includes('YOUR-WORKER-NAME')) return;
+
+        try {
+            const res = await fetch(`${WORKER_BASE_URL}/inventory`, { cache: 'no-store' });
+            if (!res.ok) return;
+            const data = await res.json();
+            if (data && data.stock && typeof data.stock === 'object') {
+                liveStock = data.stock;
+                applyStockToProductCards();
+                reconcileCartWithStock();
+                renderCart();
+            }
+        } catch {
+            // Silently keep checkout working even if pre-fetch is offline
+        }
+    }
+
     function renderCart() {
         updateCounters();
         clearError();
@@ -110,6 +203,8 @@
 
         cart.forEach(item => {
             subtotal += item.price * item.quantity;
+            const available = getStockFor(item.id);
+            const atLimit = available !== null && item.quantity >= available;
 
             const row = document.createElement('div');
             row.className = 'cart-item';
@@ -157,6 +252,7 @@
             plusBtn.type = 'button';
             plusBtn.setAttribute('aria-label', `Increase quantity of ${item.name}`);
             plusBtn.textContent = '+';
+            plusBtn.disabled = atLimit;
             plusBtn.addEventListener('click', () => updateQuantity(item.id, 1));
 
             qtyBox.appendChild(minusBtn);
@@ -172,6 +268,15 @@
 
             info.appendChild(top);
             info.appendChild(controls);
+
+            if (available !== null && available <= 3) {
+                const limitNote = document.createElement('div');
+                limitNote.className = 'cart-item-stock-limit';
+                limitNote.textContent = atLimit
+                    ? `Maximum available (${available})`
+                    : `Only ${available} available`;
+                info.appendChild(limitNote);
+            }
 
             row.appendChild(img);
             row.appendChild(info);
@@ -196,8 +301,18 @@
     }
 
     function addItem(item) {
+        const available = getStockFor(item.id);
+        if (available !== null && available <= 0) {
+            return;
+        }
+
         const existing = cart.find(entry => entry.id === item.id);
         if (existing) {
+            if (available !== null && existing.quantity >= available) {
+                openDrawer();
+                showError(`Only ${available} left for ${item.name}.`);
+                return;
+            }
             existing.quantity += 1;
         } else {
             cart.push({
@@ -215,7 +330,16 @@
     function updateQuantity(id, delta) {
         const idx = cart.findIndex(entry => entry.id === id);
         if (idx === -1) return;
-        cart[idx].quantity += delta;
+
+        const available = getStockFor(id);
+        const nextQty = cart[idx].quantity + delta;
+
+        if (available !== null && nextQty > available) {
+            showError(`Only ${available} left for ${cart[idx].name}.`);
+            return;
+        }
+
+        cart[idx].quantity = nextQty;
         if (cart[idx].quantity <= 0) {
             cart.splice(idx, 1);
         }
@@ -234,7 +358,7 @@
 
         if (cart.length === 0) return;
 
-        if (CHECKOUT_API_URL.includes('YOUR-WORKER-NAME')) {
+        if (WORKER_BASE_URL.includes('YOUR-WORKER-NAME')) {
             showError('Stripe checkout endpoint is not configured yet. Deploy worker/stripe-checkout-worker.js to Cloudflare Workers and paste its URL into cart.js.');
             return;
         }
@@ -244,7 +368,7 @@
         checkoutBtn.textContent = 'Redirecting to Stripe...';
 
         try {
-            const response = await fetch(CHECKOUT_API_URL, {
+            const response = await fetch(`${WORKER_BASE_URL}/create-checkout-session`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -254,6 +378,13 @@
             });
 
             const data = await response.json().catch(() => ({}));
+
+            if (data && data.stock && typeof data.stock === 'object') {
+                liveStock = data.stock;
+                applyStockToProductCards();
+                reconcileCartWithStock();
+                renderCart();
+            }
 
             if (!response.ok || !data.url) {
                 throw new Error(data.error || 'Could not start Stripe checkout. Please try again.');
@@ -270,7 +401,7 @@
     // Event bindings
     document.addEventListener('click', (event) => {
         const addBtn = event.target.closest('[data-cart-add]');
-        if (addBtn) {
+        if (addBtn && !addBtn.disabled) {
             addItem({
                 id: addBtn.dataset.itemId,
                 name: addBtn.dataset.itemName,
@@ -296,7 +427,6 @@
         }
     });
 
-    // Keep badge synced if cart changes in another tab
     window.addEventListener('storage', (event) => {
         if (event.key === STORAGE_KEY) {
             cart = loadCart();
@@ -314,4 +444,5 @@
     };
 
     renderCart();
+    fetchLiveInventory();
 })();
