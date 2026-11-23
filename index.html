@@ -13,6 +13,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
 
+    <!-- Snipcart Core Styles -->
+    <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.css" />
+
     <style>
         :root {
             --white: #FFFFFF;
@@ -24,6 +27,41 @@
             --stone: #5C5F73;
             --font-display: 'Cormorant Garamond', serif;
             --font-sans: 'Montserrat', sans-serif;
+
+            /* Snipcart Custom Theme Variables (Matches Your Brand Palette) */
+            --color-default: #161722;
+            --color-alt: #5C5F73;
+            --color-icon: #7B89EB;
+            --color-success: #7B89EB;
+            --color-error: #D9534F;
+
+            --bgColor-default: #FFFFFF;
+            --bgColor-alt: #F3F5FF;
+            --bgColor-buttonPrimary: #9BA7FA;
+            --bgColor-buttonPrimary-hover: #161722;
+            --bgColor-buttonPrimary-active: #161722;
+            --bgColor-buttonSecondary: #F3F5FF;
+            --bgColor-buttonSecondary-hover: #E2E6FE;
+            --bgColor-input: #FFFFFF;
+            --bgColor-input-focus: #F3F5FF;
+            --bgColor-badge: #F3F5FF;
+            --bgColor-badge-active: #9BA7FA;
+
+            --borderColor-default: #E2E6FE;
+            --borderColor-input: #9BA7FA;
+            --borderColor-input-focus: #7B89EB;
+            --borderColor-buttonPrimary: #9BA7FA;
+            --borderColor-buttonPrimary-hover: #161722;
+        }
+
+        /* Fine-tune Snipcart Typography to match your site */
+        #snipcart {
+            font-family: var(--font-sans) !important;
+        }
+        #snipcart h1, #snipcart h2, #snipcart h3, .snipcart-cart-header__title {
+            font-family: var(--font-display) !important;
+            font-weight: 400 !important;
+            letter-spacing: 0.02em !important;
         }
 
         * {
@@ -82,9 +120,15 @@
             flex-shrink: 0;
         }
 
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 2.2rem;
+        }
+
         nav {
             display: flex;
-            gap: 2.2rem;
+            gap: 2rem;
         }
 
         nav a {
@@ -116,6 +160,41 @@
 
         nav a:hover::after {
             width: 100%;
+        }
+
+        /* Minimalist Shopping Bag Button in Header */
+        .bag-btn {
+            background: var(--white);
+            border: 1px solid var(--periwinkle);
+            border-radius: 50px;
+            padding: 0.55rem 1.2rem;
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .bag-btn:hover {
+            background-color: var(--periwinkle);
+            color: var(--white);
+        }
+
+        .bag-count {
+            color: var(--periwinkle-deep);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .bag-btn:hover .bag-count {
+            color: var(--white);
         }
 
         /* Hamburger Button (Hidden on Laptop/Desktop) */
@@ -292,7 +371,7 @@
         /* --- KINETIC PATTERN RIBBON (BUSINESS CARD TRIBUTE) --- */
         .pattern-ribbon {
             width: 100%;
-            height: 160px;
+            height: 170px;
             background-color: var(--periwinkle);
             position: relative;
             overflow: hidden;
@@ -305,7 +384,7 @@
             height: 100%;
         }
 
-        /* --- EXHIBITION / CURATED WORKS --- */
+        /* --- EXHIBITION / SHOPPABLE CURATED WORKS --- */
         .exhibition {
             padding: 9rem 4vw;
             background-color: var(--white);
@@ -342,7 +421,7 @@
         .gallery-showcase {
             display: grid;
             grid-template-columns: repeat(12, 1fr);
-            gap: 4.5rem 2.5rem;
+            gap: 5rem 2.5rem;
         }
 
         .art-piece {
@@ -390,6 +469,7 @@
             align-items: baseline;
             border-top: 1px solid var(--periwinkle);
             padding-top: 0.85rem;
+            margin-bottom: 0.85rem;
             gap: 1rem;
         }
 
@@ -405,6 +485,44 @@
             font-size: 1.05rem;
             font-style: italic;
             color: var(--periwinkle-deep);
+        }
+
+        /* Editorial Price & Add to Bag Row */
+        .art-purchase-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.65rem;
+            border-top: 1px dashed var(--periwinkle-mid);
+        }
+
+        .art-price {
+            font-family: var(--font-sans);
+            font-size: 0.82rem;
+            letter-spacing: 0.14em;
+            color: var(--ink);
+            font-weight: 400;
+        }
+
+        .add-bag-btn {
+            background-color: var(--periwinkle-tint);
+            color: var(--ink);
+            border: 1px solid var(--periwinkle);
+            border-radius: 50px;
+            padding: 0.55rem 1.35rem;
+            font-family: var(--font-sans);
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-bag-btn:hover {
+            background-color: var(--periwinkle);
+            color: var(--white);
+            transform: translateY(-1px);
         }
 
         /* --- STUDIO MANIFESTO (SOFT LILAC SECTION) --- */
@@ -573,7 +691,7 @@
             color: var(--stone);
         }
 
-        /* --- NEW: WHOLESALE, CUSTOM ORDERS & COLLABORATIONS --- */
+        /* --- WHOLESALE, CUSTOM ORDERS & COLLABORATIONS --- */
         .commissions {
             padding: 9rem 4vw;
             background-color: var(--periwinkle-tint);
@@ -782,12 +900,21 @@
         /* --- RESPONSIVE & COLLAPSIBLE MOBILE NAVIGATION --- */
         @media (max-width: 960px) {
             header {
-                padding: 1.15rem 5vw;
+                padding: 1.1rem 5vw;
             }
 
             .brand-mark {
-                font-size: 0.82rem;
-                letter-spacing: 0.2em;
+                font-size: 0.8rem;
+                letter-spacing: 0.18em;
+            }
+
+            .header-right {
+                gap: 0.9rem;
+            }
+
+            .bag-btn {
+                padding: 0.45rem 0.9rem;
+                font-size: 0.65rem;
             }
 
             .menu-toggle {
@@ -856,20 +983,27 @@
     <header>
         <a href="#" class="brand-mark"><span class="brand-dot"></span>L'Atelier Damla</a>
         
-        <!-- Mobile Hamburger Toggle -->
-        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
+        <div class="header-right">
+            <nav id="navMenu">
+                <a href="#works">Works</a>
+                <a href="#atelier">Atelier</a>
+                <a href="#workshops">Workshops</a>
+                <a href="#commissions">Commissions</a>
+                <a href="#connect">Connect</a>
+            </nav>
 
-        <nav id="navMenu">
-            <a href="#works">Works</a>
-            <a href="#atelier">Atelier</a>
-            <a href="#workshops">Workshops</a>
-            <a href="#commissions">Commissions</a>
-            <a href="#connect">Connect</a>
-        </nav>
+            <!-- Live Shopping Bag Trigger -->
+            <button class="bag-btn snipcart-checkout" aria-label="Open shopping bag">
+                Bag (<span class="bag-count snipcart-items-count">0</span>)
+            </button>
+
+            <!-- Mobile Hamburger Toggle -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
     </header>
 
     <!-- HERO SECTION -->
@@ -878,7 +1012,7 @@
             <div class="eyebrow">Small-Batch Ceramic Objects</div>
             <h1 class="hero-title">Form shaped by <em>stillness</em> & earth.</h1>
             <p class="hero-sub">Hand-built and wheel-thrown stoneware celebrating organic curves, raw mineral textures, and quiet daily rituals.</p>
-            <a href="#works" class="cta-pill">View Exhibition &rarr;</a>
+            <a href="#works" class="cta-pill">Shop Collection &rarr;</a>
         </div>
 
         <div class="hero-right">
@@ -912,7 +1046,7 @@
         </svg>
     </div>
 
-    <!-- EXHIBITION / SELECTED WORKS -->
+    <!-- EXHIBITION / SHOPPABLE SELECTED WORKS -->
     <section id="works" class="exhibition">
         <div class="section-header">
             <h2>Selected Works</h2>
@@ -920,6 +1054,7 @@
         </div>
 
         <div class="gallery-showcase">
+            <!-- Product 1 -->
             <article class="art-piece piece-1">
                 <div class="art-img-box">
                     <img src="./images/ocean_cup.jpeg" alt="Ocean Cup">
@@ -928,18 +1063,44 @@
                     <span class="art-title">No. 01 — The Ocean Cup</span>
                     <span class="art-detail">Hand-thrown stoneware</span>
                 </div>
+                <div class="art-purchase-row">
+                    <span class="art-price">&euro;30</span>
+                    <button class="add-bag-btn snipcart-add-item"
+                        data-item-id="ocean-cup-01"
+                        data-item-price="30.00"
+                        data-item-url="/"
+                        data-item-description="Hand-thrown speckled stoneware vessel with satin glaze."
+                        data-item-image="./images/ocean_cup.jpeg"
+                        data-item-name="No. 01 — Organica Vessel">
+                        + Add to Bag
+                    </button>
+                </div>
             </article>
 
+            <!-- Product 2 -->
             <article class="art-piece piece-2">
                 <div class="art-img-box">
                     <img src="./images/shore_cup.jpeg" alt="Shore Cup">
                 </div>
                 <div class="art-caption">
-                    <span class="art-title">No. 02 — The Shore Cup</span>
+                    <span class="art-title">No. 02 — Shore Cup</span>
                     <span class="art-detail">Limited studio edition</span>
+                </div>
+                <div class="art-purchase-row">
+                    <span class="art-price">&euro;30</span>
+                    <button class="add-bag-btn snipcart-add-item"
+                        data-item-id="shore-cup-02"
+                        data-item-price="30.00"
+                        data-item-url="/"
+                        data-item-description="Wheel-thrown stoneware cup with overlaping volcanic shore inspired glazes."
+                        data-item-image="./images/shore_cup.jpeg"
+                        data-item-name="No. 02 — Shore Cup">
+                        + Add to Bag
+                    </button>
                 </div>
             </article>
 
+            <!-- Product 3 -->
             <article class="art-piece piece-3">
                 <div class="art-img-box">
                     <img src="./images/green_cups.jpeg" alt="Meadow Cups">
@@ -948,8 +1109,21 @@
                     <span class="art-title">No. 03 — The Meadow Cups</span>
                     <span class="art-detail">Matte glaze</span>
                 </div>
+                <div class="art-purchase-row">
+                    <span class="art-price">&euro;30</span>
+                    <button class="add-bag-btn snipcart-add-item"
+                        data-item-id="meadow-cups-03"
+                        data-item-price="30.00"
+                        data-item-url="/"
+                        data-item-description="Sculptural cups shaped from raw stoneware."
+                        data-item-image="./images/green_cups.jpeg"
+                        data-item-name="No. 03 — Meadow Cups">
+                        + Add to Bag
+                    </button>
+                </div>
             </article>
 
+            <!-- Product 4 -->
             <article class="art-piece piece-4">
                 <div class="art-img-box">
                     <img src="./images/colored_plate.jpeg" alt="Cotton Candy Plate">
@@ -957,6 +1131,18 @@
                 <div class="art-caption">
                     <span class="art-title">No. 04 — Cotton Candy Plate</span>
                     <span class="art-detail">Multiple colors</span>
+                </div>
+                <div class="art-purchase-row">
+                    <span class="art-price">&euro;35</span>
+                    <button class="add-bag-btn snipcart-add-item"
+                        data-item-id="cotton-candy-plate-04"
+                        data-item-price="35.00"
+                        data-item-url="/"
+                        data-item-description="Hand-built dessert plate."
+                        data-item-image="./images/colored_plate.jpeg"
+                        data-item-name="No. 04 — Cotton Candy Plate">
+                        + Add to Bag
+                    </button>
                 </div>
             </article>
         </div>
@@ -1095,6 +1281,18 @@
         </div>
     </footer>
 
+    <!-- Snipcart Checkout Engine -->
+    <script>
+        window.SnipcartSettings = {
+            publicApiKey: 'OWU0ZTVlYWQtY2M4Mi00MGEwLTgwZjgtZWY5MDExN2RhNjViNjM5MzA3MDA0MTcxMjkwOTc2',
+            loadStrategy: 'on-user-interaction',
+            currency: 'eur',
+            modalStyle: 'side'
+        };
+
+        (()=>{var c,d;(d=(c=window.SnipcartSettings).version)!=null||(c.version="3.0");var s,S;(S=(s=window.SnipcartSettings).timeoutDuration)!=null||(s.timeoutDuration=2750);var l,p;(p=(l=window.SnipcartSettings).domain)!=null||(l.domain="cdn.snipcart.com");var w,u;(u=(w=window.SnipcartSettings).protocol)!=null||(w.protocol="https");var f=window.SnipcartSettings.version.includes("v3.0.0-ci")||window.SnipcartSettings.version!="3.0"&&window.SnipcartSettings.version.localeCompare("3.4.0",void 0,{numeric:!0,sensitivity:"base"})===-1,m=["focus","mouseover","touchmove","scroll","keydown"];window.LoadSnipcart=o;document.readyState==="loading"?document.addEventListener("DOMContentLoaded",r):r();function r(){window.SnipcartSettings.loadStrategy?window.SnipcartSettings.loadStrategy==="on-user-interaction"&&(m.forEach(t=>document.addEventListener(t,o)),setTimeout(o,window.SnipcartSettings.timeoutDuration)):o()}var a=!1;function o(){if(a)return;a=!0;let t=document.getElementsByTagName("head")[0],e=document.querySelector("#snipcart"),i=document.querySelector(`src[src^="${window.SnipcartSettings.protocol}://${window.SnipcartSettings.domain}"][src$="snipcart.js"]`),n=document.querySelector(`link[href^="${window.SnipcartSettings.protocol}://${window.SnipcartSettings.domain}"][href$="snipcart.css"]`);e||(e=document.createElement("div"),e.id="snipcart",e.setAttribute("hidden","true"),document.body.appendChild(e)),v(e),i||(i=document.createElement("script"),i.src=`${window.SnipcartSettings.protocol}://${window.SnipcartSettings.domain}/themes/v${window.SnipcartSettings.version}/default/snipcart.js`,i.async=!0,t.appendChild(i)),n||(n=document.createElement("link"),n.rel="stylesheet",n.type="text/css",n.href=`${window.SnipcartSettings.protocol}://${window.SnipcartSettings.domain}/themes/v${window.SnipcartSettings.version}/default/snipcart.css`,t.appendChild(n)),m.forEach(g=>document.removeEventListener(g,o))}function v(t){!f||(t.dataset.apiKey=window.SnipcartSettings.publicApiKey,window.SnipcartSettings.addProductBehavior&&(t.dataset.configAddProductBehavior=window.SnipcartSettings.addProductBehavior),window.SnipcartSettings.modalStyle&&(t.dataset.configModalStyle=window.SnipcartSettings.modalStyle),window.SnipcartSettings.currency&&(t.dataset.currency=window.SnipcartSettings.currency),window.SnipcartSettings.templatesUrl&&(t.dataset.templatesUrl=window.SnipcartSettings.templatesUrl))}})();
+    </script>
+
     <!-- Mobile Menu Script -->
     <script>
         const menuToggle = document.getElementById('menuToggle');
@@ -1114,7 +1312,7 @@
                 menuToggle.setAttribute('aria-expanded', 'false');
             });
         });
-    </script>
+        </script>
 
 </body>
 </html>
