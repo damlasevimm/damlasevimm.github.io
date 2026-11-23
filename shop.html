@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Collection — L'ATELIER DAMLA</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <!-- Artistic Editorial Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Snipcart Core Styles -->
+    <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.css" />
+
+    <style>
+        :root {
+            --white: #FFFFFF;
+            --periwinkle: #9BA7FA;
+            --periwinkle-deep: #7B89EB;
+            --periwinkle-tint: #F3F5FF;
+            --periwinkle-mid: #E2E6FE;
+            --ink: #161722;
+            --stone: #5C5F73;
+            --font-display: 'Cormorant Garamond', serif;
+            --font-sans: 'Montserrat', sans-serif;
+
+            /* Snipcart Custom Theme Variables */
+            --color-default: #161722;
+            --color-alt: #5C5F73;
+            --color-icon: #7B89EB;
+            --color-success: #7B89EB;
+            --color-error: #D9534F;
+
+            --bgColor-default: #FFFFFF;
+            --bgColor-alt: #F3F5FF;
+            --bgColor-buttonPrimary: #9BA7FA;
+            --bgColor-buttonPrimary-hover: #161722;
+            --bgColor-buttonPrimary-active: #161722;
+            --bgColor-buttonSecondary: #F3F5FF;
+            --bgColor-buttonSecondary-hover: #E2E6FE;
+            --bgColor-input: #FFFFFF;
+            --bgColor-input-focus: #F3F5FF;
+            --bgColor-badge: #F3F5FF;
+            --bgColor-badge-active: #9BA7FA;
+
+            --borderColor-default: #E2E6FE;
+            --borderColor-input: #9BA7FA;
+            --borderColor-input-focus: #7B89EB;
+            --borderColor-buttonPrimary: #9BA7FA;
+            --borderColor-buttonPrimary-hover: #161722;
+        }
+
+        /* Fine-tune Snipcart Typography & Stacking */
+        #snipcart {
+            font-family: var(--font-sans) !important;
+            position: relative;
+            z-index: 1100;
+        }
+        .snipcart-modal__container {
+            z-index: 1100 !important;
+        }
+        #snipcart h1, #snipcart h2, #snipcart h3, .snipcart-cart-header__title {
+            font-family: var(--font-display) !important;
+            font-weight: 400 !important;
+            letter-spacing: 0.02em !important;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background-color: var(--white);
+            color: var(--ink);
+        }
+
+        body {
+            font-family: var(--font-display);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- HEADER --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.4rem 4vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(243, 245, 255, 0.92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--periwinkle);
+            z-index: 1000;
+        }
+
+        .brand-mark {
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--ink);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            white-space: nowrap;
+        }
+
+        .brand-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--periwinkle);
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 2.2rem;
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            font-family: var(--font-sans);
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--ink);
+            position: relative;
+            padding-bottom: 4px;
+            transition: color 0.3s ease;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 1.5px;
+            background-color: var(--periwinkle);
+            transition: width 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        nav a:hover,
+        nav a.is-current {
+            color: var(--periwinkle-deep);
+        }
+
+        nav a:hover::after,
+        nav a.is-current::after {
+            width: 100%;
+        }
+
+        .bag-btn {
+            background: var(--white);
+            border: 1px solid var(--periwinkle);
+            border-radius: 50px;
+            padding: 0.55rem 1.2rem;
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .bag-btn:hover {
+            background-color: var(--periwinkle);
+            color: var(--white);
+        }
+
+        .bag-count {
+            color: var(--periwinkle-deep);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .bag-btn:hover .bag-count {
+            color: var(--white);
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.4rem;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            z-index: 1002;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 1.5px;
+            background-color: var(--ink);
+            transition: transform 0.35s ease, opacity 0.35s ease;
+        }
+
+        .menu-toggle.is-active span:nth-child(1) {
+            transform: translateY(6.5px) rotate(45deg);
+        }
+
+        .menu-toggle.is-active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.is-active span:nth-child(3) {
+            transform: translateY(-6.5px) rotate(-45deg);
+        }
+
+        /* --- SHOP PAGE HERO BANNER --- */
+        .shop-hero {
+            padding: 9rem 4vw 4.5rem 4vw;
+            background: linear-gradient(135deg, var(--periwinkle-tint) 0%, var(--white) 60%, var(--periwinkle-tint) 100%);
+            border-bottom: 1px solid var(--periwinkle-mid);
+        }
+
+        .shop-hero-inner {
+            max-width: 1320px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .eyebrow {
+            font-family: var(--font-sans);
+            font-size: 0.72rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--periwinkle-deep);
+            margin-bottom: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 500;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 36px;
+            height: 1.5px;
+            background-color: var(--periwinkle);
+        }
+
+        .shop-hero h1 {
+            font-size: clamp(2.8rem, 5vw, 4.6rem);
+            font-weight: 300;
+            line-height: 1.02;
+            letter-spacing: -0.02em;
+        }
+
+        .shop-hero h1 em {
+            font-style: italic;
+            color: var(--periwinkle);
+            font-weight: 400;
+        }
+
+        .shop-hero-sub {
+            font-size: 1.25rem;
+            line-height: 1.65;
+            color: var(--stone);
+            max-width: 440px;
+            font-weight: 300;
+        }
+
+        /* --- CATALOG CONTROLS & FILTER BAR --- */
+        .catalog-section {
+            padding: 3.5rem 4vw 8rem 4vw;
+            background-color: var(--white);
+        }
+
+        .catalog-container {
+            max-width: 1320px;
+            margin: 0 auto;
+        }
+
+        .controls-panel {
+            background-color: var(--periwinkle-tint);
+            border: 1px solid var(--periwinkle-mid);
+            padding: 1.5rem 1.8rem;
+            margin-bottom: 2.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .controls-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-family: var(--font-sans);
+            font-size: 0.66rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--stone);
+            margin-right: 0.4rem;
+        }
+
+        .filter-pill {
+            background-color: var(--white);
+            color: var(--ink);
+            border: 1px solid var(--periwinkle-mid);
+            border-radius: 50px;
+            padding: 0.5rem 1.15rem;
+            font-family: var(--font-sans);
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .filter-pill:hover {
+            border-color: var(--periwinkle);
+            color: var(--periwinkle-deep);
+        }
+
+        .filter-pill.is-active {
+            background-color: var(--periwinkle);
+            border-color: var(--periwinkle);
+            color: var(--white);
+            box-shadow: 0 6px 16px rgba(155, 167, 250, 0.35);
+        }
+
+        .controls-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            padding-top: 1.1rem;
+            border-top: 1px solid var(--periwinkle-mid);
+        }
+
+        .search-wrap {
+            position: relative;
+            flex: 1 1 240px;
+            max-width: 340px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--white);
+            border: 1px solid var(--periwinkle-mid);
+            border-radius: 50px;
+            padding: 0.6rem 1.2rem 0.6rem 2.4rem;
+            font-family: var(--font-sans);
+            font-size: 0.74rem;
+            letter-spacing: 0.05em;
+            color: var(--ink);
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .search-input::placeholder {
+            color: var(--stone);
+            opacity: 0.75;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--periwinkle-deep);
+            box-shadow: 0 0 0 3px rgba(155, 167, 250, 0.18);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.95rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            stroke: var(--periwinkle-deep);
+            fill: none;
+            pointer-events: none;
+        }
+
+        .select-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .control-field {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .control-field label {
+            font-family: var(--font-sans);
+            font-size: 0.66rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--stone);
+            white-space: nowrap;
+        }
+
+        .editorial-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-color: var(--white);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237B89EB' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.9rem center;
+            border: 1px solid var(--periwinkle-mid);
+            border-radius: 50px;
+            padding: 0.55rem 2.3rem 0.55rem 1.05rem;
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            color: var(--ink);
+            cursor: pointer;
+            transition: border-color 0.25s ease;
+        }
+
+        .editorial-select:focus {
+            outline: none;
+            border-color: var(--periwinkle-deep);
+        }
+
+        .catalog-meta-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--periwinkle-mid);
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .results-count {
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--stone);
+        }
+
+        .reset-btn {
+            background: none;
+            border: none;
+            font-family: var(--font-sans);
+            font-size: 0.68rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--periwinkle-deep);
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            cursor: pointer;
+            transition: color 0.25s ease;
+            display: none;
+        }
+
+        .reset-btn.is-visible {
+            display: inline-block;
+        }
+
+        .reset-btn:hover {
+            color: var(--ink);
+        }
+
+        /* --- PRODUCT GRID --- */
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3.5rem 2.4rem;
+        }
+
+        .product-card {
+            display: flex;
+            flex-direction: column;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .product-card.is-hidden {
+            display: none;
+        }
+
+        .product-img-box {
+            overflow: hidden;
+            background-color: var(--periwinkle-tint);
+            margin-bottom: 1.2rem;
+            position: relative;
+            aspect-ratio: 4 / 5;
+            border: 1px solid var(--periwinkle-mid);
+            transition: box-shadow 0.45s ease, border-color 0.45s ease;
+        }
+
+        .product-card:hover .product-img-box {
+            border-color: var(--periwinkle);
+            box-shadow: 12px 12px 0px var(--periwinkle-tint);
+        }
+
+        .product-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .product-card:hover .product-img-box img {
+            transform: scale(1.05);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 0.9rem;
+            left: 0.9rem;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(6px);
+            border: 1px solid var(--periwinkle-mid);
+            border-radius: 50px;
+            padding: 0.32rem 0.8rem;
+            font-family: var(--font-sans);
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--periwinkle-deep);
+        }
+
+        .product-caption {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-top: 1px solid var(--periwinkle);
+            padding-top: 0.85rem;
+            margin-bottom: 0.55rem;
+            gap: 0.8rem;
+        }
+
+        .product-title {
+            font-family: var(--font-sans);
+            font-size: 0.78rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--ink);
+            font-weight: 500;
+        }
+
+        .product-finish {
+            font-size: 1rem;
+            font-style: italic;
+            color: var(--periwinkle-deep);
+            white-space: nowrap;
+        }
+
+        .product-desc {
+            font-size: 1.05rem;
+            line-height: 1.55;
+            color: var(--stone);
+            margin-bottom: 1.1rem;
+            flex-grow: 1;
+        }
+
+        .product-purchase-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.75rem;
+            border-top: 1px dashed var(--periwinkle-mid);
+        }
+
+        .product-price {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            letter-spacing: 0.14em;
+            color: var(--ink);
+            font-weight: 500;
+        }
+
+        .add-bag-btn {
+            background-color: var(--periwinkle-tint);
+            color: var(--ink);
+            border: 1px solid var(--periwinkle);
+            border-radius: 50px;
+            padding: 0.55rem 1.35rem;
+            font-family: var(--font-sans);
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-bag-btn:hover {
+            background-color: var(--periwinkle);
+            color: var(--white);
+            transform: translateY(-1px);
+        }
+
+        /* --- EMPTY STATE --- */
+        .empty-state {
+            display: none;
+            text-align: center;
+            padding: 5rem 2rem;
+            background-color: var(--periwinkle-tint);
+            border: 1px solid var(--periwinkle-mid);
+        }
+
+        .empty-state.is-visible {
+            display: block;
+        }
+
+        .empty-state h3 {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 0.75rem;
+        }
+
+        .empty-state p {
+            font-size: 1.15rem;
+            color: var(--stone);
+            margin-bottom: 1.8rem;
+        }
+
+        .cta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: var(--font-sans);
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            text-decoration: none;
+            background-color: var(--periwinkle);
+            color: var(--white);
+            padding: 0.95rem 2rem;
+            border: 1px solid var(--periwinkle);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.35s ease;
+        }
+
+        .cta-pill:hover {
+            background-color: var(--ink);
+            border-color: var(--ink);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background-color: var(--periwinkle);
+            color: var(--white);
+            padding: 5.5rem 4vw 3rem 4vw;
+            text-align: center;
+        }
+
+        .footer-inner {
+            max-width: 560px;
+            margin: 0 auto 4rem auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer-inner h3 {
+            font-size: clamp(2rem, 3.5vw, 2.8rem);
+            font-weight: 300;
+            margin-bottom: 0.85rem;
+        }
+
+        .footer-inner p {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            opacity: 0.95;
+            margin-bottom: 2.2rem;
+            font-weight: 300;
+        }
+
+        .newsletter-form {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.3rem;
+        }
+
+        .newsletter-form input[type="email"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50px;
+            padding: 0.95rem 1.5rem;
+            color: var(--white);
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-form input[type="email"]::placeholder {
+            color: rgba(255, 255, 255, 0.8);
+            font-style: italic;
+        }
+
+        .newsletter-form input[type="email"]:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.24);
+            border-color: var(--white);
+        }
+
+        .subscribe-btn {
+            background-color: var(--white);
+            color: var(--ink);
+            border: none;
+            border-radius: 50px;
+            padding: 0.95rem 3rem;
+            font-family: var(--font-sans);
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.35s ease;
+        }
+
+        .subscribe-btn:hover {
+            background-color: var(--ink);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .footer-bar {
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            letter-spacing: 0.14em;
+        }
+
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 2.2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 0.75;
+        }
+
+        .ig-svg {
+            width: 15px;
+            height: 15px;
+            fill: currentColor;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1080px) {
+            .catalog-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 960px) {
+            header {
+                padding: 1.1rem 5vw;
+            }
+
+            .brand-mark {
+                font-size: 0.8rem;
+                letter-spacing: 0.18em;
+            }
+
+            .header-right {
+                gap: 0.9rem;
+            }
+
+            .bag-btn {
+                padding: 0.45rem 0.9rem;
+                font-size: 0.65rem;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            nav {
+                position: fixed;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: rgba(243, 245, 255, 0.98);
+                backdrop-filter: blur(16px);
+                border-bottom: 1.5px solid var(--periwinkle);
+                flex-direction: column;
+                align-items: center;
+                gap: 0;
+                max-height: 0;
+                overflow: hidden;
+                opacity: 0;
+                pointer-events: none;
+                transition: max-height 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
+            }
+
+            nav.is-open {
+                max-height: 420px;
+                opacity: 1;
+                pointer-events: auto;
+                box-shadow: 0 20px 40px rgba(22, 23, 34, 0.08);
+            }
+
+            nav a {
+                width: 100%;
+                text-align: center;
+                padding: 1.2rem 0;
+                font-size: 0.78rem;
+                letter-spacing: 0.24em;
+                border-top: 1px solid var(--periwinkle-mid);
+            }
+
+            nav a::after {
+                display: none;
+            }
+
+            .shop-hero {
+                padding-top: 7.5rem;
+            }
+
+            .footer-bar {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .catalog-grid {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .controls-panel {
+                padding: 1.2rem;
+            }
+
+            .search-wrap {
+                max-width: none;
+            }
+
+            .select-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <a href="index.html" class="brand-mark"><span class="brand-dot"></span>L'Atelier Damla</a>
+
+        <div class="header-right">
+            <nav id="navMenu">
+                <a href="shop.html" class="is-current" aria-current="page">Shop</a>
+                <a href="index.html#works">Works</a>
+                <a href="index.html#atelier">Atelier</a>
+                <a href="index.html#workshops">Workshops</a>
+                <a href="index.html#commissions">Commissions</a>
+                <a href="index.html#connect">Connect</a>
+            </nav>
+
+            <!-- Live Shopping Bag Trigger -->
+            <button class="bag-btn snipcart-checkout" aria-label="Open shopping bag">
+                Bag (<span class="bag-count snipcart-items-count">0</span>)
+            </button>
+
+            <!-- Mobile Hamburger Toggle -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- SHOP HERO -->
+    <section class="shop-hero">
+        <div class="shop-hero-inner">
+            <div>
+                <div class="eyebrow">Collection 01 — Stoneware</div>
+                <h1>All Ceramic <em>Works</em></h1>
+            </div>
+            <p class="shop-hero-sub">Each piece is wheel-thrown or hand-built in small batches. Browse by form, glaze, or price to find an object shaped for daily rituals.</p>
+        </div>
+    </section>
+
+    <!-- CATALOG WITH FILTERS & SORT -->
+    <main class="catalog-section">
+        <div class="catalog-container">
+
+            <!-- Filter & Sort Bar -->
+            <div class="controls-panel" role="region" aria-label="Filter and sort products">
+                <div class="controls-top">
+                    <div class="filter-group" id="categoryFilters" role="group" aria-label="Filter by category">
+                        <span class="filter-label">Category</span>
+                        <button type="button" class="filter-pill is-active" data-filter="all">All</button>
+                        <button type="button" class="filter-pill" data-filter="cups">Cups</button>
+                        <button type="button" class="filter-pill" data-filter="plates">Plates</button>
+                    </div>
+                </div>
+
+                <div class="controls-bottom">
+                    <div class="search-wrap">
+                        <svg class="search-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input
+                            type="search"
+                            id="searchInput"
+                            class="search-input"
+                            placeholder="Search by piece or glaze..."
+                            aria-label="Search ceramic pieces">
+                    </div>
+
+                    <div class="select-controls">
+                        <div class="control-field">
+                            <label for="priceFilter">Price</label>
+                            <select id="priceFilter" class="editorial-select">
+                                <option value="all">All prices</option>
+                                <option value="under-35">Under &euro;35</option>
+                                <option value="35-plus">&euro;35 &amp; above</option>
+                            </select>
+                        </div>
+
+                        <div class="control-field">
+                            <label for="glazeFilter">Finish</label>
+                            <select id="glazeFilter" class="editorial-select">
+                                <option value="all">All finishes</option>
+                                <option value="satin">Satin glaze</option>
+                                <option value="volcanic">Volcanic glaze</option>
+                                <option value="matte">Matte glaze</option>
+                                <option value="multi-color">Multi-color</option>
+                            </select>
+                        </div>
+
+                        <div class="control-field">
+                            <label for="sortSelect">Sort</label>
+                            <select id="sortSelect" class="editorial-select">
+                                <option value="featured">Curated order</option>
+                                <option value="price-asc">Price: Low to High</option>
+                                <option value="price-desc">Price: High to Low</option>
+                                <option value="name-asc">Name: A &ndash; Z</option>
+                                <option value="name-desc">Name: Z &ndash; A</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Count & Reset -->
+            <div class="catalog-meta-bar">
+                <div class="results-count" id="resultsCount" aria-live="polite">Showing 4 of 4 works</div>
+                <button type="button" class="reset-btn" id="resetFiltersBtn">Reset filters</button>
+            </div>
+
+            <!-- Static HTML Product Cards (Snipcart Crawler Compatible) -->
+            <div class="catalog-grid" id="catalogGrid">
+
+                <!-- Product 1 -->
+                <article class="product-card"
+                    data-order="1"
+                    data-category="cups"
+                    data-glaze="satin"
+                    data-price="30"
+                    data-name="No. 01 — The Ocean Cup">
+                    <div class="product-img-box">
+                        <span class="product-badge">Cups</span>
+                        <img src="./images/ocean_cup.jpeg" alt="No. 01 — The Ocean Cup">
+                    </div>
+                    <div class="product-caption">
+                        <span class="product-title">No. 01 — The Ocean Cup</span>
+                        <span class="product-finish">Satin glaze</span>
+                    </div>
+                    <p class="product-desc">Hand-thrown speckled stoneware vessel with satin glaze.</p>
+                    <div class="product-purchase-row">
+                        <span class="product-price">&euro;30</span>
+                        <button class="add-bag-btn snipcart-add-item"
+                            data-item-id="ocean-cup-01"
+                            data-item-price="30.00"
+                            data-item-url="/shop.html"
+                            data-item-description="Hand-thrown speckled stoneware vessel with satin glaze."
+                            data-item-image="/images/ocean_cup.jpeg"
+                            data-item-name="No. 01 — The Ocean Cup">
+                            + Add to Bag
+                        </button>
+                    </div>
+                </article>
+
+                <!-- Product 2 -->
+                <article class="product-card"
+                    data-order="2"
+                    data-category="cups"
+                    data-glaze="volcanic"
+                    data-price="30"
+                    data-name="No. 02 — Shore Cup">
+                    <div class="product-img-box">
+                        <span class="product-badge">Cups</span>
+                        <img src="./images/shore_cup.jpeg" alt="No. 02 — Shore Cup">
+                    </div>
+                    <div class="product-caption">
+                        <span class="product-title">No. 02 — Shore Cup</span>
+                        <span class="product-finish">Volcanic glaze</span>
+                    </div>
+                    <p class="product-desc">Wheel-thrown stoneware cup with overlapping volcanic shore inspired glazes.</p>
+                    <div class="product-purchase-row">
+                        <span class="product-price">&euro;30</span>
+                        <button class="add-bag-btn snipcart-add-item"
+                            data-item-id="shore-cup-02"
+                            data-item-price="30.00"
+                            data-item-url="/shop.html"
+                            data-item-description="Wheel-thrown stoneware cup with overlapping volcanic shore inspired glazes."
+                            data-item-image="/images/shore_cup.jpeg"
+                            data-item-name="No. 02 — Shore Cup">
+                            + Add to Bag
+                        </button>
+                    </div>
+                </article>
+
+                <!-- Product 3 -->
+                <article class="product-card"
+                    data-order="3"
+                    data-category="cups"
+                    data-glaze="matte"
+                    data-price="30"
+                    data-name="No. 03 — The Meadow Cups">
+                    <div class="product-img-box">
+                        <span class="product-badge">Cups</span>
+                        <img src="./images/green_cups.jpeg" alt="No. 03 — The Meadow Cups">
+                    </div>
+                    <div class="product-caption">
+                        <span class="product-title">No. 03 — The Meadow Cups</span>
+                        <span class="product-finish">Matte glaze</span>
+                    </div>
+                    <p class="product-desc">Sculptural cups shaped from raw stoneware.</p>
+                    <div class="product-purchase-row">
+                        <span class="product-price">&euro;30</span>
+                        <button class="add-bag-btn snipcart-add-item"
+                            data-item-id="meadow-cups-03"
+                            data-item-price="30.00"
+                            data-item-url="/shop.html"
+                            data-item-description="Sculptural cups shaped from raw stoneware."
+                            data-item-image="/images/green_cups.jpeg"
+                            data-item-name="No. 03 — The Meadow Cups">
+                            + Add to Bag
+                        </button>
+                    </div>
+                </article>
+
+                <!-- Product 4 -->
+                <article class="product-card"
+                    data-order="4"
+                    data-category="plates"
+                    data-glaze="multi-color"
+                    data-price="35"
+                    data-name="No. 04 — Cotton Candy Plate">
+                    <div class="product-img-box">
+                        <span class="product-badge">Plates</span>
+                        <img src="./images/colored_plate.jpeg" alt="No. 04 — Cotton Candy Plate">
+                    </div>
+                    <div class="product-caption">
+                        <span class="product-title">No. 04 — Cotton Candy Plate</span>
+                        <span class="product-finish">Multi-color</span>
+                    </div>
+                    <p class="product-desc">Hand-built dessert plate.</p>
+                    <div class="product-purchase-row">
+                        <span class="product-price">&euro;35</span>
+                        <button class="add-bag-btn snipcart-add-item"
+                            data-item-id="cotton-candy-plate-04"
+                            data-item-price="35.00"
+                            data-item-url="/shop.html"
+                            data-item-description="Hand-built dessert plate."
+                            data-item-image="/images/colored_plate.jpeg"
+                            data-item-name="No. 04 — Cotton Candy Plate">
+                            + Add to Bag
+                        </button>
+                    </div>
+                </article>
+
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState">
+                <h3>No pieces match your selection</h3>
+                <p>Try clearing one of your filters or browse the full stoneware collection.</p>
+                <button type="button" class="cta-pill" id="emptyResetBtn">Show All Works</button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-inner">
+            <h3>Join the Atelier</h3>
+            <p>Receive private invitations to upcoming studio drops, exhibition previews, and small-batch releases.</p>
+
+            <form class="newsletter-form" action="https://api.web3forms.com/submit" method="POST">
+                <input type="hidden" name="access_key" value="055e475f-961d-401b-8a23-ca41542c764b">
+                <input type="hidden" name="subject" value="New Website Subscriber — L'Atelier Damla">
+                <input type="hidden" name="from_name" value="L'Atelier Damla Website">
+
+                <input type="email" name="email" placeholder="Enter your email address" required>
+                <button type="submit" class="subscribe-btn">Subscribe</button>
+            </form>
+        </div>
+
+        <div class="footer-bar">
+            <div>&copy; 2026 L'ATELIER DAMLA</div>
+            <ul class="footer-links">
+                <li>
+                    <a href="https://instagram.com/latelierdamla" target="_blank" rel="noopener">
+                        <svg class="ig-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+                        </svg>
+                        <span>@latelierdamla</span>
+                    </a>
+                </li>
+                <li><a href="mailto:info@latelierdamla.com">info@latelierdamla.com</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <!-- Snipcart Checkout Engine -->
+    <script>
+        window.SnipcartSettings = {
+            publicApiKey: 'OWU0ZTVlYWQtY2M4Mi00MGEwLTgwZjgtZWY5MDExN2RhNjViNjM5MzA3MDA0MTcxMjkwOTc2',
+            version: '3.7.1',
+            currency: 'eur',
+            modalStyle: 'side'
+        };
+
+        (()=>{var c,d;(d=(c=window.SnipcartSettings).version)!=null||(c.version="3.0");var s,S;(S=(s=window.SnipcartSettings).timeoutDuration)!=null||(s.timeoutDuration=2750);var l,p;(p=(l=window.SnipcartSettings).domain)!=null||(l.domain="cdn.snipcart.com");var w,u;(u=(w=window.SnipcartSettings).protocol)!=null||(w.protocol="https");var f=window.SnipcartSettings.version.includes("v3.0.0-ci")||window.SnipcartSettings.version!="3.0"&&window.SnipcartSettings.version.localeCompare("3.4.0",void 0,{numeric:!0,sensitivity:"base"})===-1,m=["focus","mouseover","touchmove","scroll","keydown"];window.LoadSnipcart=o;document.readyState==="loading"?document.addEventListener("DOMContentLoaded",r):r();function r(){window.SnipcartSettings.loadStrategy?window.SnipcartSettings.loadStrategy==="on-user-interaction"&&(m.forEach(t=>document.addEventListener(t,o)),setTimeout(o,window.SnipcartSettings.timeoutDuration)):o()}var a=!1;function o(){if(a)return;a=!0;let t=document.getElementsByTagName("head")[0],e=document.querySelector("#snipcart"),i=document.querySelector(`src[src^="${window.SnipcartSettings.protocol}://${window.SnipcartSettings.domain}"][src$="snipcart.js"]`),n=document.querySelector(`link[href^="${window.SnipcartSettings.protocol}://${window.SnipcartSettings.domain}"][href$="snipcart.css"]`);e||(e=document.createElement("div"),e.id="snipcart",e.setAttribute("hidden","true"),document.body.appendChild(e)),v(e),i||(i=document.createElement("script"),i.src=`${window.SnipcartSettings.protocol}://${window.SnipcartSettings.domain}/themes/v${window.SnipcartSettings.version}/default/snipcart.js`,i.async=!0,t.appendChild(i)),n||(n=document.createElement("link"),n.rel="stylesheet",n.type="text/css",n.href=`${window.SnipcartSettings.protocol}://${window.SnipcartSettings.domain}/themes/v${window.SnipcartSettings.version}/default/snipcart.css`,t.appendChild(n)),m.forEach(g=>document.removeEventListener(g,o))}function v(t){!f||(t.dataset.apiKey=window.SnipcartSettings.publicApiKey,window.SnipcartSettings.addProductBehavior&&(t.dataset.configAddProductBehavior=window.SnipcartSettings.addProductBehavior),window.SnipcartSettings.modalStyle&&(t.dataset.configModalStyle=window.SnipcartSettings.modalStyle),window.SnipcartSettings.currency&&(t.dataset.currency=window.SnipcartSettings.currency),window.SnipcartSettings.templatesUrl&&(t.dataset.templatesUrl=window.SnipcartSettings.templatesUrl))}})();
+    </script>
+
+    <!-- Mobile Menu & Catalog Filter/Sort Script -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navMenu = document.getElementById('navMenu');
+        const navLinks = navMenu.querySelectorAll('a');
+
+        menuToggle.addEventListener('click', () => {
+            const isOpen = navMenu.classList.toggle('is-open');
+            menuToggle.classList.toggle('is-active');
+            menuToggle.setAttribute('aria-expanded', isOpen);
+        });
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('is-open');
+                menuToggle.classList.remove('is-active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        // Catalog filter & sort engine
+        const catalogGrid = document.getElementById('catalogGrid');
+        const allCards = Array.from(catalogGrid.querySelectorAll('.product-card'));
+        const categoryButtons = Array.from(document.querySelectorAll('#categoryFilters .filter-pill'));
+        const searchInput = document.getElementById('searchInput');
+        const priceFilter = document.getElementById('priceFilter');
+        const glazeFilter = document.getElementById('glazeFilter');
+        const sortSelect = document.getElementById('sortSelect');
+        const resultsCount = document.getElementById('resultsCount');
+        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+        const emptyState = document.getElementById('emptyState');
+        const emptyResetBtn = document.getElementById('emptyResetBtn');
+
+        const state = {
+            category: 'all',
+            price: 'all',
+            glaze: 'all',
+            search: '',
+            sort: 'featured'
+        };
+
+        function matchesPrice(price, range) {
+            if (range === 'under-35') return price < 35;
+            if (range === '35-plus') return price >= 35;
+            return true;
+        }
+
+        function sortCards(cards, sortBy) {
+            return cards.slice().sort((a, b) => {
+                const priceA = parseFloat(a.dataset.price);
+                const priceB = parseFloat(b.dataset.price);
+                const orderA = parseInt(a.dataset.order, 10);
+                const orderB = parseInt(b.dataset.order, 10);
+                const nameA = a.dataset.name.toLowerCase();
+                const nameB = b.dataset.name.toLowerCase();
+
+                switch (sortBy) {
+                    case 'price-asc':
+                        return priceA - priceB || orderA - orderB;
+                    case 'price-desc':
+                        return priceB - priceA || orderA - orderB;
+                    case 'name-asc':
+                        return nameA.localeCompare(nameB);
+                    case 'name-desc':
+                        return nameB.localeCompare(nameA);
+                    default:
+                        return orderA - orderB;
+                }
+            });
+        }
+
+        function updateURL() {
+            const params = new URLSearchParams();
+            if (state.category !== 'all') params.set('category', state.category);
+            if (state.price !== 'all') params.set('price', state.price);
+            if (state.glaze !== 'all') params.set('finish', state.glaze);
+            if (state.search) params.set('q', state.search);
+            if (state.sort !== 'featured') params.set('sort', state.sort);
+
+            const query = params.toString();
+            const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
+        }
+
+        function applyFiltersAndSort() {
+            const query = state.search.trim().toLowerCase();
+            const sortedCards = sortCards(allCards, state.sort);
+
+            let visibleCount = 0;
+
+            sortedCards.forEach(card => {
+                const category = card.dataset.category;
+                const glaze = card.dataset.glaze;
+                const price = parseFloat(card.dataset.price);
+                const searchable = `${card.dataset.name} ${card.textContent}`.toLowerCase();
+
+                const isMatch =
+                    (state.category === 'all' || category === state.category) &&
+                    (state.glaze === 'all' || glaze === state.glaze) &&
+                    matchesPrice(price, state.price) &&
+                    (!query || searchable.includes(query));
+
+                card.classList.toggle('is-hidden', !isMatch);
+                catalogGrid.appendChild(card);
+
+                if (isMatch) visibleCount++;
+            });
+
+            const total = allCards.length;
+            const label = visibleCount === 1 ? 'work' : 'works';
+            resultsCount.textContent = `Showing ${visibleCount} of ${total} ${label}`;
+
+            const hasActiveFilter =
+                state.category !== 'all' ||
+                state.price !== 'all' ||
+                state.glaze !== 'all' ||
+                query !== '' ||
+                state.sort !== 'featured';
+
+            resetFiltersBtn.classList.toggle('is-visible', hasActiveFilter);
+            emptyState.classList.toggle('is-visible', visibleCount === 0);
+
+            updateURL();
+        }
+
+        function setActiveCategoryButton(cat) {
+            categoryButtons.forEach(btn => {
+                btn.classList.toggle('is-active', btn.dataset.filter === cat);
+            });
+        }
+
+        function resetAllFilters() {
+            state.category = 'all';
+            state.price = 'all';
+            state.glaze = 'all';
+            state.search = '';
+            state.sort = 'featured';
+
+            setActiveCategoryButton('all');
+            searchInput.value = '';
+            priceFilter.value = 'all';
+            glazeFilter.value = 'all';
+            sortSelect.value = 'featured';
+
+            applyFiltersAndSort();
+        }
+
+        // Event Listeners
+        categoryButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.category = btn.dataset.filter;
+                setActiveCategoryButton(state.category);
+                applyFiltersAndSort();
+            });
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            state.search = e.target.value;
+            applyFiltersAndSort();
+        });
+
+        priceFilter.addEventListener('change', (e) => {
+            state.price = e.target.value;
+            applyFiltersAndSort();
+        });
+
+        glazeFilter.addEventListener('change', (e) => {
+            state.glaze = e.target.value;
+            applyFiltersAndSort();
+        });
+
+        sortSelect.addEventListener('change', (e) => {
+            state.sort = e.target.value;
+            applyFiltersAndSort();
+        });
+
+        resetFiltersBtn.addEventListener('click', resetAllFilters);
+        emptyResetBtn.addEventListener('click', resetAllFilters);
+
+        // Initialize from URL parameters if present
+        (function initFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const cat = params.get('category');
+            const price = params.get('price');
+            const finish = params.get('finish');
+            const q = params.get('q');
+            const sort = params.get('sort');
+
+            if (cat && categoryButtons.some(b => b.dataset.filter === cat)) {
+                state.category = cat;
+                setActiveCategoryButton(cat);
+            }
+            if (price && Array.from(priceFilter.options).some(o => o.value === price)) {
+                state.price = price;
+                priceFilter.value = price;
+            }
+            if (finish && Array.from(glazeFilter.options).some(o => o.value === finish)) {
+                state.glaze = finish;
+                glazeFilter.value = finish;
+            }
+            if (q) {
+                state.search = q;
+                searchInput.value = q;
+            }
+            if (sort && Array.from(sortSelect.options).some(o => o.value === sort)) {
+                state.sort = sort;
+                sortSelect.value = sort;
+            }
+
+            applyFiltersAndSort();
+        })();
+    </script>
+
+</body>
+</html>
