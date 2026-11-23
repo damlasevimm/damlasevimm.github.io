@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed — L'ATELIER DAMLA</title>
+    <link rel="canonical" href="https://latelierdamla.com/success">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/cart.css">
+
+    <style>
+        :root {
+            --white: #FFFFFF;
+            --periwinkle: #9BA7FA;
+            --periwinkle-deep: #7B89EB;
+            --periwinkle-tint: #F3F5FF;
+            --periwinkle-mid: #E2E6FE;
+            --ink: #161722;
+            --stone: #5C5F73;
+            --font-display: 'Cormorant Garamond', serif;
+            --font-sans: 'Montserrat', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-display);
+            color: var(--ink);
+            background: linear-gradient(135deg, var(--periwinkle-tint) 0%, var(--white) 55%, var(--periwinkle-tint) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        header {
+            padding: 1.4rem 4vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(243, 245, 255, 0.92);
+            border-bottom: 1px solid var(--periwinkle);
+        }
+
+        .brand-mark {
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--ink);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .brand-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--periwinkle);
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 4vw;
+        }
+
+        .confirmation-card {
+            max-width: 600px;
+            width: 100%;
+            background: var(--white);
+            border: 1.5px solid var(--periwinkle);
+            box-shadow: 18px 18px 0 var(--periwinkle-tint);
+            padding: 3.5rem 3rem;
+            text-align: center;
+        }
+
+        .eyebrow {
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: var(--periwinkle-deep);
+            margin-bottom: 1.2rem;
+            font-weight: 500;
+        }
+
+        h1 {
+            font-size: clamp(2.4rem, 4.5vw, 3.4rem);
+            font-weight: 300;
+            line-height: 1.1;
+            margin-bottom: 1.25rem;
+        }
+
+        h1 em {
+            font-style: italic;
+            color: var(--periwinkle);
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.7;
+            color: var(--stone);
+            margin-bottom: 1.4rem;
+        }
+
+        .actions {
+            margin-top: 2.2rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .cta-pill {
+            display: inline-flex;
+            align-items: center;
+            font-family: var(--font-sans);
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            text-decoration: none;
+            background-color: var(--periwinkle);
+            color: var(--white);
+            padding: 1rem 2rem;
+            border: 1px solid var(--periwinkle);
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .cta-pill:hover {
+            background-color: var(--ink);
+            border-color: var(--ink);
+        }
+
+        .cta-secondary {
+            background-color: var(--periwinkle-tint);
+            color: var(--ink);
+        }
+
+        .cta-secondary:hover {
+            background-color: var(--periwinkle);
+            border-color: var(--periwinkle);
+            color: var(--white);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="brand-mark"><span class="brand-dot"></span>L'Atelier Damla</a>
+    </header>
+
+    <main>
+        <section class="confirmation-card">
+            <div class="eyebrow">Thank You</div>
+            <h1>Your order is <em>confirmed</em>.</h1>
+            <p>Thank you for supporting small-batch handmade ceramics. A payment receipt from Stripe has been sent to your email, and we will reach out with tracking details once your pieces are packed and shipped.</p>
+            <p>Questions about your order? Write to <a href="mailto:info@latelierdamla.com" style="color: var(--periwinkle-deep);">info@latelierdamla.com</a>.</p>
+            <div class="actions">
+                <a href="/shop" class="cta-pill">Continue Browsing &rarr;</a>
+                <a href="/" class="cta-pill cta-secondary">Return Home</a>
+            </div>
+        </section>
+    </main>
+
+    <script src="/cart.js"></script>
+    <script>
+        if (window.AtelierCart) {
+            window.AtelierCart.clear();
+        }
+    </script>
+</body>
+</html>
