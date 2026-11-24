@@ -1,29 +1,28 @@
 /**
- * L'Atelier Damla — Stripe Checkout, Automatic Inventory & Order Numbers Worker
+ * L'Atelier Damla — Stripe Checkout, D1 SQL Inventory, Orders & Emails Worker
  * Zero dependencies — copy-paste directly into the Cloudflare Worker editor.
  *
- * Required Cloudflare Worker bindings / secrets (Settings -> Variables and Secrets / Bindings):
- *   1. Secret:       STRIPE_SECRET_KEY      (sk_test_... or sk_live_...)
- *   2. Secret:       STRIPE_WEBHOOK_SECRET  (whsec_... from Stripe Developers -> Webhooks)
- *   3. KV Namespace: INVENTORY              (Cloudflare KV namespace for item stock counts only)
- *   4. KV Namespace: ORDERS                 (Cloudflare KV namespace for order numbers & records)
- *   5. KV Namespace: PROCESSED              (Cloudflare KV namespace for processed/emailed/session keys)
- *   6. Secret:       RESEND_API_KEY         (re_... from https://resend.com — enables automatic emails)
- *   7. Optional Var: EMAIL_FROM             (defaults to "L'Atelier Damla <orders@latelierdamla.com>")
+ * Required Cloudflare Worker bindings / secrets (Settings -> Bindings / Variables and Secrets):
+ *   1. D1 Database:  DB                     (Cloudflare D1 database initialized with worker/schema.sql)
+ *   2. Secret:       STRIPE_SECRET_KEY      (sk_test_... or sk_live_...)
+ *   3. Secret:       STRIPE_WEBHOOK_SECRET  (whsec_... from Stripe Developers -> Webhooks)
+ *   4. Secret:       RESEND_API_KEY         (re_... from https://resend.com — enables automatic emails)
+ *   5. Optional Var: EMAIL_FROM             (defaults to "L'Atelier Damla <orders@latelierdamla.com>")
  *
  * Endpoints:
- *   GET  /                        -> Health & config status check
- *   GET  /inventory               -> Live stock counts for all catalog items
+ *   GET  /                        -> Health & D1/Stripe/Email status check
+ *   GET  /inventory               -> Instant live stock counts from D1 `products` table
  *   GET  /order?session_id=cs_... -> Order receipt + sequential order number (LAD-1001) for /success
- *   POST /create-checkout-session -> Validates live stock & creates Stripe Checkout session
- *   POST /stripe-webhook          -> Verifies Stripe signature, assigns order number, decrements stock & emails
+ *   POST /create-checkout-session -> Validates live D1 stock & creates Stripe Checkout session
+ *   POST /stripe-webhook          -> Verifies Stripe signature, creates D1 order, decrements stock & emails
  */
 
 const SITE_URL = 'https://latelierdamla.com';
 const STUDIO_EMAIL = 'info@latelierdamla.com';
 const DEFAULT_FROM_EMAIL = "L'Atelier Damla <orders@latelierdamla.com>";
+
 const ORDER_PREFIX = 'LAD';
-const ORDER_START_NUMBER = 1000; // First order becomes LAD-1001
+const ORDER_BASE_OFFSET = 1000; // Order id 1 -> LAD-1001, id 2 -> LAD-1002, ...
 
 const ALLOWED_ORIGINS = new Set([
     'https://latelierdamla.com',
@@ -31,39 +30,6 @@ const ALLOWED_ORIGINS = new Set([
     'http://localhost:8000',
     'http://127.0.0.1:8000'
 ]);
-
-// Server-side source of truth for prices (in EUR cents) and initial fallback stock.
-// Once a product ID is added to Cloudflare KV (INVENTORY) or purchased, KV overrides defaultStock.
-const CATALOG = {
-    'ocean-cup-01': {
-        name: 'No. 01 — The Ocean Cup',
-        description: 'Hand-thrown speckled stoneware vessel with satin glaze.',
-        unitAmount: 3000, // €30.00
-        defaultStock: 3,
-        image: `${SITE_URL}/images/ocean_cup.jpeg`
-    },
-    'shore-cup-02': {
-        name: 'No. 02 — Shore Cup',
-        description: 'Wheel-thrown stoneware cup with overlapping volcanic shore inspired glazes.',
-        unitAmount: 3000, // €30.00
-        defaultStock: 3,
-        image: `${SITE_URL}/images/shore_cup.jpeg`
-    },
-    'meadow-cups-03': {
-        name: 'No. 03 — The Meadow Cups',
-        description: 'Sculptural cups shaped from raw stoneware.',
-        unitAmount: 3000, // €30.00
-        defaultStock: 3,
-        image: `${SITE_URL}/images/green_cups.jpeg`
-    },
-    'cotton-candy-plate-04': {
-        name: 'No. 04 — Cotton Candy Plate',
-        description: 'Hand-built dessert plate.',
-        unitAmount: 3500, // €35.00
-        defaultStock: 2,
-        image: `${SITE_URL}/images/colored_plate.jpeg`
-    }
-};
 
 // Countries you ship to (ISO 3166-1 alpha-2 codes)
 const SHIPPING_COUNTRIES = [
@@ -88,13 +54,7 @@ const FREE_SHIPPING = {
     maxDays: 7
 };
 
-function getOrdersKv(env) {
-    return env.ORDERS || env.INVENTORY || null;
-}
-
-function getProcessedKv(env) {
-    return env.PROCESSED || env.ORDERS || env.INVENTORY || null;
-}
+// ===== HTTP Helpers =====
 
 function corsHeaders(origin) {
     const allowedOrigin = ALLOWED_ORIGINS.has(origin) ? origin : SITE_URL;
@@ -118,43 +78,89 @@ function jsonResponse(payload, status, origin, extraHeaders = {}) {
     });
 }
 
-async function getProductStock(env, productId) {
-    const product = CATALOG[productId];
-    if (!product) return 0;
+// ===== D1 Database Helpers =====
 
-    if (env.INVENTORY) {
-        const raw = await env.INVENTORY.get(productId);
-        if (raw !== null) {
-            const parsed = parseInt(raw, 10);
-            if (Number.isInteger(parsed) && parsed >= 0) {
-                return parsed;
-            }
-        }
+async function getCatalogMap(env) {
+    const { results } = await env.DB
+        .prepare('SELECT id, name, description, unit_amount, image, stock FROM products')
+        .all();
+
+    const map = {};
+    for (const row of results || []) {
+        map[row.id] = {
+            id: row.id,
+            name: row.name,
+            description: row.description || '',
+            unitAmount: Number(row.unit_amount),
+            image: row.image || '',
+            stock: Math.max(0, Number(row.stock) || 0)
+        };
     }
-
-    return product.defaultStock;
+    return map;
 }
 
 async function getAllStock(env) {
-    const entries = await Promise.all(
-        Object.keys(CATALOG).map(async id => [id, await getProductStock(env, id)])
-    );
-    return Object.fromEntries(entries);
-}
+    const { results } = await env.DB
+        .prepare('SELECT id, stock FROM products')
+        .all();
 
-async function nextOrderNumber(env) {
-    const ordersKv = getOrdersKv(env);
-    if (!ordersKv) {
-        return `${ORDER_PREFIX}-${Date.now().toString().slice(-6)}`;
+    const stock = {};
+    for (const row of results || []) {
+        stock[row.id] = Math.max(0, Number(row.stock) || 0);
     }
-    const raw = await ordersKv.get('order:counter');
-    const current = raw !== null ? parseInt(raw, 10) : ORDER_START_NUMBER;
-    const next = Number.isInteger(current) && current >= ORDER_START_NUMBER ? current + 1 : ORDER_START_NUMBER + 1;
-    await ordersKv.put('order:counter', String(next));
-    return `${ORDER_PREFIX}-${next}`;
+    return stock;
 }
 
-// Constant-time hex string comparison for Stripe webhook signature verification
+async function getOrderBySessionId(env, sessionId) {
+    const orderRow = await env.DB
+        .prepare('SELECT * FROM orders WHERE stripe_session_id = ?')
+        .bind(sessionId)
+        .first();
+
+    if (!orderRow) return null;
+
+    const { results: itemRows } = await env.DB
+        .prepare('SELECT product_id, name, quantity, amount_total FROM order_items WHERE order_id = ? ORDER BY id ASC')
+        .bind(orderRow.id)
+        .all();
+
+    let shippingAddress = null;
+    if (orderRow.shipping_address_json) {
+        try {
+            shippingAddress = JSON.parse(orderRow.shipping_address_json);
+        } catch {
+            shippingAddress = null;
+        }
+    }
+
+    return {
+        id: orderRow.id,
+        orderNumber: orderRow.order_number || `${ORDER_PREFIX}-${ORDER_BASE_OFFSET + orderRow.id}`,
+        sessionId: orderRow.stripe_session_id,
+        paymentIntentId: orderRow.payment_intent_id,
+        status: orderRow.status,
+        trackingNumber: orderRow.tracking_number,
+        createdAt: orderRow.created_at,
+        currency: orderRow.currency,
+        amountSubtotal: Number(orderRow.amount_subtotal) || 0,
+        amountShipping: Number(orderRow.amount_shipping) || 0,
+        amountTotal: Number(orderRow.amount_total) || 0,
+        customerName: orderRow.customer_name || '',
+        customerEmail: orderRow.customer_email || '',
+        customerPhone: orderRow.customer_phone || '',
+        shippingAddress,
+        emailedAt: orderRow.emailed_at,
+        items: (itemRows || []).map(row => ({
+            id: row.product_id,
+            name: row.name,
+            quantity: Number(row.quantity) || 1,
+            amountTotal: Number(row.amount_total) || 0
+        }))
+    };
+}
+
+// ===== Stripe Helpers =====
+
 function timingSafeEqualHex(a, b) {
     if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) {
         return false;
@@ -202,6 +208,55 @@ async function verifyStripeSignature(rawBody, signatureHeader, secret) {
 
     return signatures.some(sig => timingSafeEqualHex(sig, expectedHex));
 }
+
+async function fetchStripeSession(env, sessionId) {
+    const res = await fetch(
+        `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`,
+        {
+            headers: { 'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}` }
+        }
+    );
+    const data = await res.json();
+    return { ok: res.ok, status: res.status, data };
+}
+
+async function fetchStripeLineItems(env, sessionId) {
+    const res = await fetch(
+        `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}/line_items?limit=100&expand[]=data.price.product`,
+        {
+            headers: { 'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}` }
+        }
+    );
+    const data = await res.json();
+    if (!res.ok) {
+        throw new Error(data?.error?.message || 'Failed to fetch Stripe line items.');
+    }
+    return data.data || [];
+}
+
+async function tagStripePaymentIntent(env, paymentIntentId, orderNumber, items) {
+    if (!paymentIntentId) return;
+
+    const itemsSummary = items.map(i => `${i.name} x${i.quantity}`).join(', ').slice(0, 480);
+    const piParams = new URLSearchParams();
+    piParams.append('description', `Order ${orderNumber} — L'Atelier Damla`);
+    piParams.append('metadata[order_number]', orderNumber);
+    piParams.append('metadata[items]', itemsSummary);
+
+    await fetch(
+        `https://api.stripe.com/v1/payment_intents/${encodeURIComponent(paymentIntentId)}`,
+        {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: piParams.toString()
+        }
+    ).catch(() => {});
+}
+
+// ===== Email Helpers (Resend) =====
 
 function escapeHtml(value) {
     return String(value ?? '')
@@ -401,10 +456,7 @@ async function sendOrderEmails(env, order) {
     if (!env.RESEND_API_KEY) {
         return { customerSent: false, studioSent: false, skipped: true };
     }
-
-    const processedKv = getProcessedKv(env);
-    const emailKey = `emailed:${order.sessionId}`;
-    if (processedKv && await processedKv.get(emailKey)) {
+    if (order.emailedAt) {
         return { customerSent: false, studioSent: false, duplicate: true };
     }
 
@@ -434,159 +486,18 @@ async function sendOrderEmails(env, order) {
         text: studioMsg.text
     }).catch(() => false);
 
-    if (processedKv && (customerSent || studioSent)) {
-        await processedKv.put(emailKey, new Date().toISOString(), {
-            expirationTtl: 60 * 60 * 24 * 30
-        });
+    if (customerSent || studioSent) {
+        await env.DB
+            .prepare("UPDATE orders SET emailed_at = datetime('now') WHERE id = ?")
+            .bind(order.id)
+            .run()
+            .catch(() => {});
     }
 
     return { customerSent, studioSent };
 }
 
-/**
- * Idempotently finalizes a paid Checkout Session:
- * - Assigns sequential order number (LAD-1001, LAD-1002, ...) in ORDERS KV
- * - Decrements item stock once per session in INVENTORY KV
- * - Tracks processed/emailed/session lookup keys in PROCESSED KV (auto-expiring after 30 days)
- * - Saves order number & items summary onto Stripe PaymentIntent (so it shows in Stripe Dashboard)
- */
-async function finalizePaidSession(env, session) {
-    const ordersKv = getOrdersKv(env);
-    const processedKv = getProcessedKv(env);
-    const sessionOrderKey = `session:${session.id}`;
-    const processedKey = `processed:${session.id}`;
-
-    // If already finalized, return the saved order record immediately
-    if (processedKv) {
-        const existingRaw = await processedKv.get(sessionOrderKey);
-        if (existingRaw) {
-            try {
-                return { order: JSON.parse(existingRaw), duplicate: true };
-            } catch {
-                // Continue if malformed
-            }
-        }
-    }
-
-    // Fetch finalized line items from Stripe
-    const lineItemsRes = await fetch(
-        `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(session.id)}/line_items?limit=100&expand[]=data.price.product`,
-        {
-            headers: {
-                'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`
-            }
-        }
-    );
-
-    const lineItemsData = await lineItemsRes.json();
-    if (!lineItemsRes.ok) {
-        throw new Error(lineItemsData?.error?.message || 'Failed to fetch Stripe line items.');
-    }
-
-    const lineItems = (lineItemsData.data || []).map(li => {
-        const catalogId = li.price?.product?.metadata?.catalog_id || null;
-        return {
-            id: catalogId,
-            name: li.description || li.price?.product?.name || 'Ceramic Piece',
-            quantity: parseInt(li.quantity, 10) || 1,
-            amountTotal: typeof li.amount_total === 'number' ? li.amount_total : 0
-        };
-    });
-
-    // Decrement stock in INVENTORY KV only once per session (tracked in PROCESSED KV)
-    const alreadyDecremented = processedKv ? Boolean(await processedKv.get(processedKey)) : false;
-    const updatedStock = {};
-
-    if (env.INVENTORY && !alreadyDecremented) {
-        const purchasedCounts = {};
-        for (const item of lineItems) {
-            if (item.id && CATALOG[item.id] && item.quantity > 0) {
-                purchasedCounts[item.id] = (purchasedCounts[item.id] || 0) + item.quantity;
-            }
-        }
-
-        for (const [catalogId, qty] of Object.entries(purchasedCounts)) {
-            const current = await getProductStock(env, catalogId);
-            const nextStock = Math.max(0, current - qty);
-            await env.INVENTORY.put(catalogId, String(nextStock));
-            updatedStock[catalogId] = nextStock;
-        }
-
-        if (processedKv) {
-            await processedKv.put(processedKey, new Date().toISOString(), {
-                expirationTtl: 60 * 60 * 24 * 30
-            });
-        }
-    }
-
-    const orderNumber = await nextOrderNumber(env);
-    const shipping = session.shipping_details || session.collected_information?.shipping_details || null;
-    const address = shipping?.address || null;
-
-    const orderRecord = {
-        orderNumber,
-        sessionId: session.id,
-        paymentIntentId: typeof session.payment_intent === 'string' ? session.payment_intent : null,
-        createdAt: new Date((session.created || Math.floor(Date.now() / 1000)) * 1000).toISOString(),
-        status: 'paid',
-        currency: session.currency || 'eur',
-        amountSubtotal: session.amount_subtotal || 0,
-        amountShipping: session.total_details?.amount_shipping || 0,
-        amountTotal: session.amount_total || 0,
-        customerName: shipping?.name || session.customer_details?.name || '',
-        customerEmail: session.customer_details?.email || '',
-        customerPhone: session.customer_details?.phone || '',
-        shippingAddress: address ? {
-            line1: address.line1 || '',
-            line2: address.line2 || '',
-            city: address.city || '',
-            state: address.state || '',
-            postalCode: address.postal_code || '',
-            country: address.country || ''
-        } : null,
-        items: lineItems
-    };
-
-    // Tag the Stripe PaymentIntent so "Order LAD-1001 — L'Atelier Damla" appears in Stripe Dashboard
-    if (orderRecord.paymentIntentId) {
-        const itemsSummary = lineItems.map(i => `${i.name} x${i.quantity}`).join(', ').slice(0, 480);
-        const piParams = new URLSearchParams();
-        piParams.append('description', `Order ${orderNumber} — L'Atelier Damla`);
-        piParams.append('metadata[order_number]', orderNumber);
-        piParams.append('metadata[items]', itemsSummary);
-
-        await fetch(
-            `https://api.stripe.com/v1/payment_intents/${encodeURIComponent(orderRecord.paymentIntentId)}`,
-            {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: piParams.toString()
-            }
-        ).catch(() => {});
-    }
-
-    const serialized = JSON.stringify(orderRecord);
-    const writes = [];
-    if (ordersKv) {
-        writes.push(ordersKv.put(`order:number:${orderNumber}`, serialized));
-    }
-    if (processedKv) {
-        writes.push(processedKv.put(sessionOrderKey, serialized, {
-            expirationTtl: 60 * 60 * 24 * 30
-        }));
-    }
-    if (writes.length) {
-        await Promise.all(writes);
-    }
-
-    // Send branded confirmation email to customer + order alert to studio (via Resend)
-    const emailStatus = await sendOrderEmails(env, orderRecord);
-
-    return { order: orderRecord, updatedStock, emailStatus, duplicate: false };
-}
+// ===== Order Finalization (Atomic & Idempotent via D1 UNIQUE stripe_session_id) =====
 
 function publicOrderReceipt(order) {
     return {
@@ -608,10 +519,138 @@ function publicOrderReceipt(order) {
     };
 }
 
-async function handleGetOrder(request, env, origin) {
-    if (!env.STRIPE_SECRET_KEY) {
-        return jsonResponse({ error: 'Missing STRIPE_SECRET_KEY.' }, 500, origin);
+async function finalizePaidSession(env, session) {
+    // Fast path: order already created in D1
+    const existing = await getOrderBySessionId(env, session.id);
+    if (existing) {
+        return { order: existing, duplicate: true };
     }
+
+    // Fetch finalized line items from Stripe
+    const rawLineItems = await fetchStripeLineItems(env, session.id);
+    const lineItems = rawLineItems.map(li => ({
+        id: li.price?.product?.metadata?.catalog_id || null,
+        name: li.description || li.price?.product?.name || 'Ceramic Piece',
+        quantity: parseInt(li.quantity, 10) || 1,
+        amountTotal: typeof li.amount_total === 'number' ? li.amount_total : 0
+    }));
+
+    const shipping = session.shipping_details || session.collected_information?.shipping_details || null;
+    const address = shipping?.address || null;
+    const shippingAddress = address ? {
+        line1: address.line1 || '',
+        line2: address.line2 || '',
+        city: address.city || '',
+        state: address.state || '',
+        postalCode: address.postal_code || '',
+        country: address.country || ''
+    } : null;
+
+    const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : null;
+    const createdAt = new Date((session.created || Math.floor(Date.now() / 1000)) * 1000).toISOString();
+
+    // Atomic idempotency gate: UNIQUE(stripe_session_id) guarantees only one insert succeeds
+    const insertRes = await env.DB
+        .prepare(`
+            INSERT OR IGNORE INTO orders (
+                stripe_session_id,
+                payment_intent_id,
+                status,
+                currency,
+                amount_subtotal,
+                amount_shipping,
+                amount_total,
+                customer_name,
+                customer_email,
+                customer_phone,
+                shipping_address_json,
+                created_at
+            ) VALUES (?, ?, 'paid', ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `)
+        .bind(
+            session.id,
+            paymentIntentId,
+            session.currency || 'eur',
+            session.amount_subtotal || 0,
+            session.total_details?.amount_shipping || 0,
+            session.amount_total || 0,
+            shipping?.name || session.customer_details?.name || '',
+            session.customer_details?.email || '',
+            session.customer_details?.phone || '',
+            shippingAddress ? JSON.stringify(shippingAddress) : null,
+            createdAt
+        )
+        .run();
+
+    // Another concurrent call (e.g. webhook + /success simultaneously) already created this order
+    if (!insertRes.meta || insertRes.meta.changes === 0) {
+        const winner = await getOrderBySessionId(env, session.id);
+        return { order: winner, duplicate: true };
+    }
+
+    const orderId = insertRes.meta.last_row_id;
+    const orderNumber = `${ORDER_PREFIX}-${ORDER_BASE_OFFSET + orderId}`;
+
+    // Batch: assign order_number, insert order_items, and atomically decrement stock in D1
+    const statements = [
+        env.DB
+            .prepare('UPDATE orders SET order_number = ? WHERE id = ?')
+            .bind(orderNumber, orderId)
+    ];
+
+    const purchasedCounts = {};
+    for (const item of lineItems) {
+        statements.push(
+            env.DB
+                .prepare('INSERT INTO order_items (order_id, product_id, name, quantity, amount_total) VALUES (?, ?, ?, ?, ?)')
+                .bind(orderId, item.id, item.name, item.quantity, item.amountTotal)
+        );
+        if (item.id && item.quantity > 0) {
+            purchasedCounts[item.id] = (purchasedCounts[item.id] || 0) + item.quantity;
+        }
+    }
+
+    for (const [productId, qty] of Object.entries(purchasedCounts)) {
+        statements.push(
+            env.DB
+                .prepare("UPDATE products SET stock = MAX(0, stock - ?), updated_at = datetime('now') WHERE id = ?")
+                .bind(qty, productId)
+        );
+    }
+
+    await env.DB.batch(statements);
+
+    const orderRecord = {
+        id: orderId,
+        orderNumber,
+        sessionId: session.id,
+        paymentIntentId,
+        status: 'paid',
+        createdAt,
+        currency: session.currency || 'eur',
+        amountSubtotal: session.amount_subtotal || 0,
+        amountShipping: session.total_details?.amount_shipping || 0,
+        amountTotal: session.amount_total || 0,
+        customerName: shipping?.name || session.customer_details?.name || '',
+        customerEmail: session.customer_details?.email || '',
+        customerPhone: session.customer_details?.phone || '',
+        shippingAddress,
+        emailedAt: null,
+        items: lineItems
+    };
+
+    // Tag PaymentIntent in Stripe Dashboard & send confirmation emails
+    await tagStripePaymentIntent(env, paymentIntentId, orderNumber, lineItems);
+    const emailStatus = await sendOrderEmails(env, orderRecord);
+
+    return { order: orderRecord, emailStatus, duplicate: false };
+}
+
+// ===== Route Handlers =====
+
+async function handleGetOrder(request, env, origin) {
+    if (!env.DB) return jsonResponse({ error: 'Missing D1 DB binding.' }, 500, origin);
+    if (!env.STRIPE_SECRET_KEY) return jsonResponse({ error: 'Missing STRIPE_SECRET_KEY.' }, 500, origin);
 
     const url = new URL(request.url);
     const sessionId = (url.searchParams.get('session_id') || '').trim();
@@ -620,31 +659,15 @@ async function handleGetOrder(request, env, origin) {
         return jsonResponse({ error: 'Invalid session_id.' }, 400, origin);
     }
 
-    // Fast path: already saved in PROCESSED KV
-    const processedKv = getProcessedKv(env);
-    if (processedKv) {
-        const cached = await processedKv.get(`session:${sessionId}`);
-        if (cached) {
-            try {
-                return jsonResponse({ order: publicOrderReceipt(JSON.parse(cached)) }, 200, origin);
-            } catch {
-                // Fall through to Stripe lookup
-            }
-        }
+    // Fast path: already in D1
+    const existing = await getOrderBySessionId(env, sessionId);
+    if (existing) {
+        return jsonResponse({ order: publicOrderReceipt(existing) }, 200, origin);
     }
 
-    // Fetch session from Stripe to verify payment before finalizing
-    const sessionRes = await fetch(
-        `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`,
-        {
-            headers: {
-                'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`
-            }
-        }
-    );
-
-    const session = await sessionRes.json();
-    if (!sessionRes.ok) {
+    // Otherwise verify directly with Stripe and finalize immediately
+    const { ok, data: session } = await fetchStripeSession(env, sessionId);
+    if (!ok) {
         return jsonResponse({ error: 'Order session not found.' }, 404, origin);
     }
 
@@ -661,15 +684,9 @@ async function handleGetOrder(request, env, origin) {
 }
 
 async function handleStripeWebhook(request, env, origin) {
-    if (!env.STRIPE_WEBHOOK_SECRET) {
-        return jsonResponse({ error: 'Missing STRIPE_WEBHOOK_SECRET.' }, 500, origin);
-    }
-    if (!env.STRIPE_SECRET_KEY) {
-        return jsonResponse({ error: 'Missing STRIPE_SECRET_KEY.' }, 500, origin);
-    }
-    if (!env.INVENTORY) {
-        return jsonResponse({ error: 'Missing INVENTORY KV binding.' }, 500, origin);
-    }
+    if (!env.DB) return jsonResponse({ error: 'Missing D1 DB binding.' }, 500, origin);
+    if (!env.STRIPE_WEBHOOK_SECRET) return jsonResponse({ error: 'Missing STRIPE_WEBHOOK_SECRET.' }, 500, origin);
+    if (!env.STRIPE_SECRET_KEY) return jsonResponse({ error: 'Missing STRIPE_SECRET_KEY.' }, 500, origin);
 
     const rawBody = await request.text();
     const sigHeader = request.headers.get('Stripe-Signature');
@@ -699,8 +716,7 @@ async function handleStripeWebhook(request, env, origin) {
         return jsonResponse({
             received: true,
             duplicate: result.duplicate,
-            orderNumber: result.order.orderNumber,
-            updatedStock: result.updatedStock || {}
+            orderNumber: result.order?.orderNumber || null
         }, 200, origin);
     } catch (err) {
         return jsonResponse({ error: err.message || 'Failed to finalize order.' }, 500, origin);
@@ -708,9 +724,8 @@ async function handleStripeWebhook(request, env, origin) {
 }
 
 async function handleCreateCheckoutSession(request, env, origin) {
-    if (!env.STRIPE_SECRET_KEY) {
-        return jsonResponse({ error: 'Server missing STRIPE_SECRET_KEY secret.' }, 500, origin);
-    }
+    if (!env.DB) return jsonResponse({ error: 'Server missing D1 DB binding.' }, 500, origin);
+    if (!env.STRIPE_SECRET_KEY) return jsonResponse({ error: 'Server missing STRIPE_SECRET_KEY secret.' }, 500, origin);
 
     let body;
     try {
@@ -724,35 +739,37 @@ async function handleCreateCheckoutSession(request, env, origin) {
         return jsonResponse({ error: 'Your bag is empty.' }, 400, origin);
     }
 
-    // Merge duplicate product IDs in the request
+    const catalog = await getCatalogMap(env);
+    const liveStock = Object.fromEntries(
+        Object.entries(catalog).map(([id, prod]) => [id, prod.stock])
+    );
+
     const mergedQuantities = {};
     for (const item of rawItems) {
         const id = item && typeof item.id === 'string' ? item.id : '';
         const quantity = Number.isInteger(item?.quantity) ? item.quantity : parseInt(item?.quantity, 10);
 
-        if (!CATALOG[id]) {
+        if (!catalog[id]) {
             return jsonResponse({ error: `Unknown product: ${id}` }, 400, origin);
         }
         if (!Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
-            return jsonResponse({ error: `Invalid quantity for ${CATALOG[id].name}` }, 400, origin);
+            return jsonResponse({ error: `Invalid quantity for ${catalog[id].name}` }, 400, origin);
         }
         mergedQuantities[id] = (mergedQuantities[id] || 0) + quantity;
     }
 
-    // Check live stock before creating the Stripe Checkout session
-    const liveStock = await getAllStock(env);
     for (const [id, quantity] of Object.entries(mergedQuantities)) {
-        const available = liveStock[id];
+        const available = catalog[id].stock;
         if (available <= 0) {
             return jsonResponse(
-                { error: `${CATALOG[id].name} is currently sold out.`, stock: liveStock },
+                { error: `${catalog[id].name} is currently sold out.`, stock: liveStock },
                 409,
                 origin
             );
         }
         if (quantity > available) {
             return jsonResponse(
-                { error: `Only ${available} left for ${CATALOG[id].name}.`, stock: liveStock },
+                { error: `Only ${available} left for ${catalog[id].name}.`, stock: liveStock },
                 409,
                 origin
             );
@@ -772,14 +789,16 @@ async function handleCreateCheckoutSession(request, env, origin) {
     let subtotalCents = 0;
 
     for (const [id, quantity] of Object.entries(mergedQuantities)) {
-        const product = CATALOG[id];
+        const product = catalog[id];
         subtotalCents += product.unitAmount * quantity;
 
         params.append(`line_items[${lineIndex}][price_data][currency]`, 'eur');
         params.append(`line_items[${lineIndex}][price_data][unit_amount]`, String(product.unitAmount));
         params.append(`line_items[${lineIndex}][price_data][product_data][name]`, product.name);
         params.append(`line_items[${lineIndex}][price_data][product_data][description]`, product.description);
-        params.append(`line_items[${lineIndex}][price_data][product_data][images][0]`, product.image);
+        if (product.image) {
+            params.append(`line_items[${lineIndex}][price_data][product_data][images][0]`, product.image);
+        }
         params.append(`line_items[${lineIndex}][price_data][product_data][metadata][catalog_id]`, id);
         params.append(`line_items[${lineIndex}][quantity]`, String(quantity));
 
@@ -835,6 +854,8 @@ async function handleCreateCheckoutSession(request, env, origin) {
     return jsonResponse({ url: stripeData.url }, 200, origin);
 }
 
+// ===== Entrypoint =====
+
 export default {
     async fetch(request, env) {
         const origin = request.headers.get('Origin') || '';
@@ -846,32 +867,47 @@ export default {
         const url = new URL(request.url);
         const path = url.pathname.replace(/\/+$/, '') || '/';
 
-        // Health check when visiting the Worker URL in a browser
+        // Health check
         if (request.method === 'GET' && path === '/') {
+            let dbReady = false;
+            let productCount = 0;
+
+            if (env.DB) {
+                try {
+                    const row = await env.DB.prepare('SELECT COUNT(*) AS count FROM products').first();
+                    productCount = Number(row?.count) || 0;
+                    dbReady = true;
+                } catch {
+                    dbReady = false;
+                }
+            }
+
             return jsonResponse({
                 ok: true,
                 service: "L'Atelier Damla Stripe Checkout",
+                database: 'Cloudflare D1',
+                dbBound: Boolean(env.DB),
+                dbReady,
+                productCount,
                 stripeConfigured: Boolean(env.STRIPE_SECRET_KEY),
-                inventoryKvBound: Boolean(env.INVENTORY),
-                ordersKvBound: Boolean(env.ORDERS),
-                processedKvBound: Boolean(env.PROCESSED),
                 webhookConfigured: Boolean(env.STRIPE_WEBHOOK_SECRET),
                 emailConfigured: Boolean(env.RESEND_API_KEY)
             }, 200, origin);
         }
 
-        // Public live stock endpoint for index.html and shop.html
+        // Instant live stock from D1
         if (request.method === 'GET' && path === '/inventory') {
+            if (!env.DB) return jsonResponse({ error: 'Missing D1 DB binding.' }, 500, origin);
             const stock = await getAllStock(env);
             return jsonResponse({ stock }, 200, origin);
         }
 
-        // Public order receipt lookup for success.html (?session_id=cs_...)
+        // Order receipt lookup for /success
         if (request.method === 'GET' && path === '/order') {
             return handleGetOrder(request, env, origin);
         }
 
-        // Stripe webhook endpoint for automatic stock decrements & order numbers
+        // Stripe webhook
         if (request.method === 'POST' && path === '/stripe-webhook') {
             return handleStripeWebhook(request, env, origin);
         }
