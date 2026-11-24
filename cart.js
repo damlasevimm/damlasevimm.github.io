@@ -4,6 +4,7 @@
     const WORKER_BASE_URL = CHECKOUT_API_URL.replace(/\/create-checkout-session\/?$/, '').replace(/\/+$/, '');
     const STORAGE_KEY = 'latelier_damla_cart_v1';
     const FREE_SHIPPING_THRESHOLD = 50; // Free shipping for orders higher than €50
+    const STANDARD_SHIPPING_EUR = 8;
 
     let liveStock = null; // Map of { [productId]: number } once loaded from Worker /inventory
 
@@ -56,16 +57,40 @@
             <h2 class="cart-drawer-title">Your Bag</h2>
             <button type="button" class="cart-drawer-close" aria-label="Close shopping bag">&times;</button>
         </div>
+        <div class="cart-steps" aria-label="Checkout steps">
+            <span class="cart-step is-active" data-step="1"><span class="cart-step-num">1</span>Bag</span>
+            <span class="cart-step-divider" aria-hidden="true"></span>
+            <span class="cart-step" data-step="2"><span class="cart-step-num">2</span>Shipping &amp; Pay</span>
+            <span class="cart-step-divider" aria-hidden="true"></span>
+            <span class="cart-step" data-step="3"><span class="cart-step-num">3</span>Confirmed</span>
+        </div>
         <div class="cart-drawer-body" id="cartDrawerBody"></div>
         <div class="cart-drawer-footer" id="cartDrawerFooter">
-            <div class="cart-subtotal-row">
-                <span class="cart-subtotal-label">Subtotal</span>
-                <span class="cart-subtotal-value" id="cartSubtotal">&euro;0</span>
+            <div class="cart-shipping-bar" aria-hidden="true">
+                <div class="cart-shipping-bar-fill" id="cartShippingBarFill"></div>
             </div>
             <p class="cart-shipping-note" id="cartShippingNote">Free shipping on orders over &euro;50 (&euro;8 standard shipping).</p>
+            <div class="cart-summary-rows">
+                <div class="cart-summary-row">
+                    <span>Subtotal</span>
+                    <span id="cartSubtotal">&euro;0</span>
+                </div>
+                <div class="cart-summary-row">
+                    <span>Tracked Shipping</span>
+                    <span id="cartShippingCost">&euro;8</span>
+                </div>
+                <div class="cart-subtotal-row">
+                    <span class="cart-subtotal-label">Estimated Total</span>
+                    <span class="cart-subtotal-value" id="cartTotal">&euro;0</span>
+                </div>
+            </div>
+            <div class="cart-status" id="cartStatus" role="status" aria-live="polite">
+                <span class="cart-spinner" aria-hidden="true"></span>
+                <span id="cartStatusText">Checking stock &amp; opening secure Stripe checkout&hellip;</span>
+            </div>
             <div class="cart-error" id="cartError" role="alert"></div>
-            <button type="button" class="cart-checkout-btn" id="cartCheckoutBtn">Proceed to Checkout &rarr;</button>
-            <div class="cart-powered">Secure checkout powered by Stripe</div>
+            <button type="button" class="cart-checkout-btn" id="cartCheckoutBtn">Continue to Shipping &amp; Payment &rarr;</button>
+            <div class="cart-powered">Step 2 opens Stripe's secure checkout for address &amp; payment</div>
         </div>
     `;
 
@@ -75,10 +100,31 @@
     const bodyEl = drawer.querySelector('#cartDrawerBody');
     const footerEl = drawer.querySelector('#cartDrawerFooter');
     const subtotalEl = drawer.querySelector('#cartSubtotal');
+    const shippingCostEl = drawer.querySelector('#cartShippingCost');
+    const totalEl = drawer.querySelector('#cartTotal');
+    const shippingBarFillEl = drawer.querySelector('#cartShippingBarFill');
     const shippingNoteEl = drawer.querySelector('#cartShippingNote');
+    const statusEl = drawer.querySelector('#cartStatus');
+    const statusTextEl = drawer.querySelector('#cartStatusText');
     const errorEl = drawer.querySelector('#cartError');
     const checkoutBtn = drawer.querySelector('#cartCheckoutBtn');
     const closeBtn = drawer.querySelector('.cart-drawer-close');
+    const stepEls = Array.from(drawer.querySelectorAll('.cart-step'));
+
+    function setActiveStep(stepNum) {
+        stepEls.forEach(el => {
+            el.classList.toggle('is-active', Number(el.dataset.step) <= stepNum);
+        });
+    }
+
+    function showStatus(message) {
+        statusTextEl.textContent = message;
+        statusEl.classList.add('is-visible');
+    }
+
+    function clearStatus() {
+        statusEl.classList.remove('is-visible');
+    }
 
     function showError(message) {
         errorEl.textContent = message;
@@ -285,15 +331,27 @@
             bodyEl.appendChild(row);
         });
 
-        subtotalEl.textContent = formatEur(subtotal);
+        const qualifiesForFreeShipping = subtotal > FREE_SHIPPING_THRESHOLD;
+        const shippingCost = qualifiesForFreeShipping ? 0 : STANDARD_SHIPPING_EUR;
+        const progressPct = qualifiesForFreeShipping
+            ? 100
+            : Math.min(95, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100));
 
-        if (subtotal > FREE_SHIPPING_THRESHOLD) {
+        subtotalEl.textContent = formatEur(subtotal);
+        shippingCostEl.textContent = qualifiesForFreeShipping ? 'Free' : formatEur(shippingCost);
+        shippingCostEl.classList.toggle('is-free-val', qualifiesForFreeShipping);
+        totalEl.textContent = formatEur(subtotal + shippingCost);
+
+        shippingBarFillEl.style.width = `${progressPct}%`;
+        shippingBarFillEl.classList.toggle('is-complete', qualifiesForFreeShipping);
+
+        if (qualifiesForFreeShipping) {
             shippingNoteEl.textContent = 'You have unlocked free tracked shipping!';
             shippingNoteEl.classList.add('is-free');
         } else {
             shippingNoteEl.textContent = subtotal < FREE_SHIPPING_THRESHOLD
-                ? `Free shipping on orders over €50 — add more than ${formatEur(FREE_SHIPPING_THRESHOLD - subtotal)} to qualify (€8 standard shipping).`
-                : 'Free shipping applies on orders over €50 (€8 standard shipping).';
+                ? `Add more than ${formatEur(FREE_SHIPPING_THRESHOLD - subtotal)} to unlock free shipping (orders over €50).`
+                : 'Add 1 more item to unlock free shipping (orders over €50).';
             shippingNoteEl.classList.remove('is-free');
         }
     }
@@ -377,7 +435,9 @@
 
         checkoutBtn.disabled = true;
         const originalText = checkoutBtn.innerHTML;
-        checkoutBtn.textContent = 'Redirecting to Stripe...';
+        setActiveStep(2);
+        showStatus('Checking stock & preparing secure Stripe checkout…');
+        checkoutBtn.innerHTML = '<span class="cart-spinner" aria-hidden="true"></span><span>Opening Stripe Checkout…</span>';
 
         try {
             const response = await fetch(`${WORKER_BASE_URL}/create-checkout-session`, {
@@ -402,8 +462,11 @@
                 throw new Error(data.error || 'Could not start Stripe checkout. Please try again.');
             }
 
+            showStatus('Redirecting you to Stripe…');
             window.location.href = data.url;
         } catch (err) {
+            clearStatus();
+            setActiveStep(1);
             showError(err.message || 'Unable to connect to checkout. Please try again.');
             checkoutBtn.disabled = false;
             checkoutBtn.innerHTML = originalText;

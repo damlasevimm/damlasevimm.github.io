@@ -142,16 +142,85 @@
 
         .receipt-loading {
             display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
             font-family: var(--font-sans);
             font-size: 0.7rem;
-            letter-spacing: 0.16em;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
             color: var(--periwinkle-deep);
-            margin: 1.2rem 0;
+            background: var(--periwinkle-tint);
+            border: 1px solid var(--periwinkle-mid);
+            padding: 1rem 1.2rem;
+            margin: 1.4rem 0;
         }
 
         .receipt-loading.is-visible {
-            display: block;
+            display: flex;
+        }
+
+        .order-timeline {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.85rem;
+            margin: 1.5rem 0 1.6rem;
+            text-align: left;
+        }
+
+        .timeline-step {
+            background: var(--periwinkle-tint);
+            border: 1px solid var(--periwinkle-mid);
+            padding: 0.95rem 0.9rem;
+            font-family: var(--font-sans);
+        }
+
+        .timeline-step.is-done {
+            background: var(--white);
+            border-color: var(--periwinkle);
+            box-shadow: 4px 4px 0 var(--periwinkle-tint);
+        }
+
+        .timeline-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 0.65rem;
+            font-weight: 500;
+            margin-bottom: 0.55rem;
+            border: 1px solid var(--periwinkle-mid);
+            color: var(--stone);
+            background: var(--white);
+        }
+
+        .timeline-step.is-done .timeline-badge {
+            background: var(--periwinkle);
+            border-color: var(--periwinkle);
+            color: var(--white);
+        }
+
+        .timeline-title {
+            font-size: 0.66rem;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--ink);
+            margin-bottom: 0.3rem;
+        }
+
+        .timeline-desc {
+            font-size: 0.68rem;
+            line-height: 1.5;
+            color: var(--stone);
+        }
+
+        @media (max-width: 600px) {
+            .order-timeline {
+                grid-template-columns: 1fr;
+            }
         }
 
         .receipt-box {
@@ -309,14 +378,35 @@
 
     <main>
         <section class="confirmation-card">
-            <div class="eyebrow">Thank You</div>
-            <h1>Your order is <em>confirmed</em>.</h1>
+            <div class="eyebrow" id="pageEyebrow">Payment Received</div>
+            <h1 id="pageHeading">Your order is <em>confirmed</em>.</h1>
 
             <div class="order-number-pill" id="orderNumberPill">
                 Order <strong id="orderNumberValue"></strong>
             </div>
 
-            <div class="receipt-loading" id="receiptLoading">Preparing your order details&hellip;</div>
+            <div class="receipt-loading" id="receiptLoading" role="status" aria-live="polite">
+                <span class="cart-spinner" aria-hidden="true"></span>
+                <span>Finalizing your order &amp; generating your order number&hellip;</span>
+            </div>
+
+            <div class="order-timeline" aria-label="Order progress">
+                <div class="timeline-step is-done">
+                    <div class="timeline-badge">&#10003;</div>
+                    <div class="timeline-title">Confirmed</div>
+                    <div class="timeline-desc">Payment received &amp; email confirmation on the way.</div>
+                </div>
+                <div class="timeline-step">
+                    <div class="timeline-badge">2</div>
+                    <div class="timeline-title">Studio Packing</div>
+                    <div class="timeline-desc">Carefully hand-wrapped within 2&ndash;3 business days.</div>
+                </div>
+                <div class="timeline-step">
+                    <div class="timeline-badge">3</div>
+                    <div class="timeline-title">Tracked Delivery</div>
+                    <div class="timeline-desc">Tracking link emailed as soon as it ships.</div>
+                </div>
+            </div>
 
             <div class="receipt-box" id="receiptBox">
                 <div class="receipt-meta">
@@ -366,6 +456,8 @@
             if (!sessionId) return;
 
             const loadingEl = document.getElementById('receiptLoading');
+            const eyebrowEl = document.getElementById('pageEyebrow');
+            const headingEl = document.getElementById('pageHeading');
             const pillEl = document.getElementById('orderNumberPill');
             const orderNumEl = document.getElementById('orderNumberValue');
             const boxEl = document.getElementById('receiptBox');
@@ -387,6 +479,8 @@
             printBtn.addEventListener('click', () => window.print());
 
             async function loadOrder() {
+                eyebrowEl.textContent = 'Processing Order';
+                headingEl.innerHTML = 'Finalizing your <em>order</em>&hellip;';
                 loadingEl.classList.add('is-visible');
                 try {
                     const res = await fetch(`${WORKER_BASE_URL}/order?session_id=${encodeURIComponent(sessionId)}`, {
@@ -397,6 +491,8 @@
                     const order = data && data.order;
                     if (!order) return;
 
+                    eyebrowEl.textContent = 'Thank You';
+                    headingEl.innerHTML = 'Your order is <em>confirmed</em>.';
                     orderNumEl.textContent = `#${order.orderNumber}`;
                     pillEl.classList.add('is-visible');
 
@@ -447,6 +543,10 @@
                     // Gracefully keep generic confirmation message if lookup fails
                 } finally {
                     loadingEl.classList.remove('is-visible');
+                    if (eyebrowEl.textContent === 'Processing Order') {
+                        eyebrowEl.textContent = 'Thank You';
+                        headingEl.innerHTML = 'Your order is <em>confirmed</em>.';
+                    }
                 }
             }
 

@@ -803,6 +803,16 @@ async function handleCreateCheckoutSession(request, env, origin) {
     params.append('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]', 'business_day');
     params.append('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]', String(shippingOption.maxDays));
 
+    // Clear customer guidance directly on Stripe's hosted checkout page
+    params.append(
+        'custom_text[shipping_address][message]',
+        'Each ceramic piece is carefully hand-wrapped in protective packaging and dispatched tracked within 2–3 business days.'
+    );
+    params.append(
+        'custom_text[submit][message]',
+        "Once payment completes, you'll be redirected back to L'Atelier Damla with your order number and email confirmation."
+    );
+
     const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
         method: 'POST',
         headers: {
