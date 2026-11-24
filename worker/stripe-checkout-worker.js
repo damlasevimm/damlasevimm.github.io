@@ -6,16 +6,20 @@
  *   1. Secret:       STRIPE_SECRET_KEY      (sk_test_... or sk_live_...)
  *   2. Secret:       STRIPE_WEBHOOK_SECRET  (whsec_... from Stripe Developers -> Webhooks)
  *   3. KV Namespace: INVENTORY              (Cloudflare KV namespace storing stock & order records)
+ *   4. Secret:       RESEND_API_KEY         (re_... from https://resend.com — enables automatic emails)
+ *   5. Optional Var: EMAIL_FROM             (defaults to "L'Atelier Damla <orders@latelierdamla.com>")
  *
  * Endpoints:
  *   GET  /                        -> Health & config status check
  *   GET  /inventory               -> Live stock counts for all catalog items
  *   GET  /order?session_id=cs_... -> Order receipt + sequential order number (LAD-1001) for /success
  *   POST /create-checkout-session -> Validates live stock & creates Stripe Checkout session
- *   POST /stripe-webhook          -> Verifies Stripe signature, assigns order number & decrements stock
+ *   POST /stripe-webhook          -> Verifies Stripe signature, assigns order number, decrements stock & emails
  */
 
 const SITE_URL = 'https://latelierdamla.com';
+const STUDIO_EMAIL = 'info@latelierdamla.com';
+const DEFAULT_FROM_EMAIL = "L'Atelier Damla <orders@latelierdamla.com>";
 const ORDER_PREFIX = 'LAD';
 const ORDER_START_NUMBER = 1000; // First order becomes LAD-1001
 
@@ -183,6 +187,245 @@ async function verifyStripeSignature(rawBody, signatureHeader, secret) {
     return signatures.some(sig => timingSafeEqualHex(sig, expectedHex));
 }
 
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function formatMoneyCents(cents, currency = 'eur') {
+    return new Intl.NumberFormat('en-IE', {
+        style: 'currency',
+        currency: (currency || 'eur').toUpperCase()
+    }).format((cents || 0) / 100);
+}
+
+function formatShippingLines(address) {
+    if (!address) return [];
+    const cityLine = [address.postalCode, address.city, address.state].filter(Boolean).join(' ');
+    return [address.line1, address.line2, cityLine, address.country].filter(Boolean);
+}
+
+function buildCustomerOrderEmail(order) {
+    const firstName = (order.customerName || '').trim().split(/\s+/)[0] || 'there';
+    const orderDate = new Date(order.createdAt).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+
+    const itemRowsHtml = (order.items || []).map(item => `
+        <tr>
+            <td style="padding:10px 0;border-bottom:1px solid #E2E6FE;font-size:14px;color:#161722;">
+                ${escapeHtml(item.name)} <span style="color:#5C5F73;">&times; ${item.quantity}</span>
+            </td>
+            <td style="padding:10px 0;border-bottom:1px solid #E2E6FE;font-size:14px;color:#161722;text-align:right;white-space:nowrap;">
+                ${escapeHtml(formatMoneyCents(item.amountTotal, order.currency))}
+            </td>
+        </tr>
+    `).join('');
+
+    const shippingLines = formatShippingLines(order.shippingAddress);
+    const shippingHtml = shippingLines.length
+        ? `<div style="margin-top:22px;padding-top:18px;border-top:1px solid #E2E6FE;">
+               <div style="font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:#7B89EB;margin-bottom:6px;">Shipping Address</div>
+               <div style="font-size:14px;line-height:1.6;color:#5C5F73;">
+                   ${order.customerName ? `${escapeHtml(order.customerName)}<br>` : ''}${shippingLines.map(escapeHtml).join('<br>')}
+               </div>
+           </div>`
+        : '';
+
+    const subtotalStr = formatMoneyCents(order.amountSubtotal, order.currency);
+    const shippingStr = order.amountShipping > 0 ? formatMoneyCents(order.amountShipping, order.currency) : 'Free';
+    const totalStr = formatMoneyCents(order.amountTotal, order.currency);
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<body style="margin:0;padding:24px 12px;background-color:#F3F5FF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#161722;">
+  <div style="max-width:580px;margin:0 auto;background:#FFFFFF;border:1px solid #9BA7FA;">
+    <div style="padding:28px 32px;background:#F3F5FF;border-bottom:1px solid #E2E6FE;text-align:center;">
+      <div style="font-size:12px;letter-spacing:0.26em;text-transform:uppercase;color:#161722;font-weight:600;">L'ATELIER DAMLA</div>
+      <div style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#7B89EB;margin-top:6px;">Order Confirmation</div>
+    </div>
+
+    <div style="padding:32px;">
+      <h1 style="margin:0 0 12px;font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:28px;color:#161722;">
+        Thank you, ${escapeHtml(firstName)}.
+      </h1>
+      <p style="margin:0 0 22px;font-size:15px;line-height:1.65;color:#5C5F73;">
+        Your order has been received and confirmed. Each ceramic piece is packed with care in our studio—we will send you tracking details as soon as it ships.
+      </p>
+
+      <div style="display:inline-block;padding:8px 16px;background:#F3F5FF;border:1px solid #9BA7FA;border-radius:50px;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#161722;margin-bottom:22px;">
+        Order <strong style="color:#7B89EB;">#${escapeHtml(order.orderNumber)}</strong> &middot; ${escapeHtml(orderDate)}
+      </div>
+
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+        ${itemRowsHtml}
+        <tr>
+          <td style="padding:12px 0 4px;font-size:13px;color:#5C5F73;">Subtotal</td>
+          <td style="padding:12px 0 4px;font-size:13px;color:#5C5F73;text-align:right;">${escapeHtml(subtotalStr)}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0 10px;font-size:13px;color:#5C5F73;">Shipping</td>
+          <td style="padding:4px 0 10px;font-size:13px;color:#5C5F73;text-align:right;">${escapeHtml(shippingStr)}</td>
+        </tr>
+        <tr>
+          <td style="padding:12px 0 0;border-top:1px solid #9BA7FA;font-size:15px;font-weight:600;color:#161722;">Total Paid</td>
+          <td style="padding:12px 0 0;border-top:1px solid #9BA7FA;font-size:15px;font-weight:600;color:#161722;text-align:right;">${escapeHtml(totalStr)}</td>
+        </tr>
+      </table>
+
+      ${shippingHtml}
+
+      <p style="margin:26px 0 0;font-size:13px;line-height:1.6;color:#5C5F73;">
+        Have a question about your order? Simply reply to this email or write to
+        <a href="mailto:${STUDIO_EMAIL}" style="color:#7B89EB;">${STUDIO_EMAIL}</a> with order number <strong>#${escapeHtml(order.orderNumber)}</strong>.
+      </p>
+    </div>
+
+    <div style="padding:18px 32px;background:#9BA7FA;color:#FFFFFF;text-align:center;font-size:11px;letter-spacing:0.14em;">
+      L'ATELIER DAMLA &middot; <a href="${SITE_URL}" style="color:#FFFFFF;text-decoration:none;">latelierdamla.com</a>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const itemsText = (order.items || [])
+        .map(i => `- ${i.name} x${i.quantity}: ${formatMoneyCents(i.amountTotal, order.currency)}`)
+        .join('\n');
+
+    const text = [
+        `Thank you for your order from L'Atelier Damla!`,
+        ``,
+        `Order Number: #${order.orderNumber}`,
+        `Date: ${orderDate}`,
+        ``,
+        `Items:`,
+        itemsText,
+        ``,
+        `Subtotal: ${subtotalStr}`,
+        `Shipping: ${shippingStr}`,
+        `Total Paid: ${totalStr}`,
+        shippingLines.length ? `\nShipping Address:\n${order.customerName ? order.customerName + '\n' : ''}${shippingLines.join('\n')}` : '',
+        ``,
+        `We will send tracking details as soon as your pieces ship.`,
+        `Questions? Reply to this email or contact ${STUDIO_EMAIL} with #${order.orderNumber}.`
+    ].filter(Boolean).join('\n');
+
+    return {
+        subject: `Order Confirmed — #${order.orderNumber} | L'Atelier Damla`,
+        html,
+        text
+    };
+}
+
+function buildStudioOrderEmail(order) {
+    const shippingLines = formatShippingLines(order.shippingAddress);
+    const itemsListHtml = (order.items || [])
+        .map(i => `<li><strong>${escapeHtml(i.name)}</strong> &times; ${i.quantity} (${escapeHtml(formatMoneyCents(i.amountTotal, order.currency))})</li>`)
+        .join('');
+
+    const stripeLink = order.paymentIntentId
+        ? `<p style="margin-top:16px;"><a href="https://dashboard.stripe.com/payments/${encodeURIComponent(order.paymentIntentId)}" style="color:#7B89EB;">View Payment in Stripe Dashboard &rarr;</a></p>`
+        : '';
+
+    const html = `
+        <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#161722;line-height:1.6;">
+            <h2>New Order #${escapeHtml(order.orderNumber)}</h2>
+            <p><strong>Total Paid:</strong> ${escapeHtml(formatMoneyCents(order.amountTotal, order.currency))}</p>
+            <h3>Items to Pack</h3>
+            <ul>${itemsListHtml}</ul>
+            <h3>Customer</h3>
+            <p>
+                Name: ${escapeHtml(order.customerName || '—')}<br>
+                Email: ${escapeHtml(order.customerEmail || '—')}<br>
+                Phone: ${escapeHtml(order.customerPhone || '—')}
+            </p>
+            <h3>Shipping Address</h3>
+            <p>${shippingLines.length ? shippingLines.map(escapeHtml).join('<br>') : '—'}</p>
+            ${stripeLink}
+        </div>
+    `;
+
+    const text = [
+        `New Order #${order.orderNumber}`,
+        `Total Paid: ${formatMoneyCents(order.amountTotal, order.currency)}`,
+        ``,
+        `Items:`,
+        ...(order.items || []).map(i => `- ${i.name} x${i.quantity}`),
+        ``,
+        `Customer: ${order.customerName || '—'} (${order.customerEmail || '—'}, ${order.customerPhone || '—'})`,
+        `Shipping: ${shippingLines.join(', ') || '—'}`
+    ].join('\n');
+
+    return {
+        subject: `New Order #${order.orderNumber} (${formatMoneyCents(order.amountTotal, order.currency)})`,
+        html,
+        text
+    };
+}
+
+async function sendViaResend(env, payload) {
+    const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    });
+    return res.ok;
+}
+
+async function sendOrderEmails(env, order) {
+    if (!env.RESEND_API_KEY) {
+        return { customerSent: false, studioSent: false, skipped: true };
+    }
+
+    const emailKey = `emailed:${order.sessionId}`;
+    if (env.INVENTORY && await env.INVENTORY.get(emailKey)) {
+        return { customerSent: false, studioSent: false, duplicate: true };
+    }
+
+    const from = env.EMAIL_FROM || DEFAULT_FROM_EMAIL;
+    let customerSent = false;
+    let studioSent = false;
+
+    if (order.customerEmail) {
+        const customerMsg = buildCustomerOrderEmail(order);
+        customerSent = await sendViaResend(env, {
+            from,
+            to: [order.customerEmail],
+            reply_to: STUDIO_EMAIL,
+            subject: customerMsg.subject,
+            html: customerMsg.html,
+            text: customerMsg.text
+        }).catch(() => false);
+    }
+
+    const studioMsg = buildStudioOrderEmail(order);
+    studioSent = await sendViaResend(env, {
+        from,
+        to: [STUDIO_EMAIL],
+        reply_to: order.customerEmail || STUDIO_EMAIL,
+        subject: studioMsg.subject,
+        html: studioMsg.html,
+        text: studioMsg.text
+    }).catch(() => false);
+
+    if (env.INVENTORY && (customerSent || studioSent)) {
+        await env.INVENTORY.put(emailKey, new Date().toISOString(), {
+            expirationTtl: 60 * 60 * 24 * 30
+        });
+    }
+
+    return { customerSent, studioSent };
+}
+
 /**
  * Idempotently finalizes a paid Checkout Session:
  * - Assigns sequential order number (LAD-1001, LAD-1002, ...)
@@ -312,7 +555,10 @@ async function finalizePaidSession(env, session) {
         ]);
     }
 
-    return { order: orderRecord, updatedStock, duplicate: false };
+    // Send branded confirmation email to customer + order alert to studio (via Resend)
+    const emailStatus = await sendOrderEmails(env, orderRecord);
+
+    return { order: orderRecord, updatedStock, emailStatus, duplicate: false };
 }
 
 function publicOrderReceipt(order) {
@@ -574,7 +820,8 @@ export default {
                 service: "L'Atelier Damla Stripe Checkout",
                 stripeConfigured: Boolean(env.STRIPE_SECRET_KEY),
                 inventoryKvBound: Boolean(env.INVENTORY),
-                webhookConfigured: Boolean(env.STRIPE_WEBHOOK_SECRET)
+                webhookConfigured: Boolean(env.STRIPE_WEBHOOK_SECRET),
+                emailConfigured: Boolean(env.RESEND_API_KEY)
             }, 200, origin);
         }
 

@@ -28,17 +28,29 @@ Your Cloudflare Worker handles **Stripe Checkout**, **automatic live inventory**
    Events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`.
 3. Copy the **Signing secret** (`whsec_...`) and add it to your Worker under **Settings → Variables and Secrets** as Secret **`STRIPE_WEBHOOK_SECRET`**.
 
-## 4. Managing Orders & Order Numbers
+## 4. Automatic Order Confirmation Emails (Resend — Free Tier)
+Your Worker automatically sends:
+- A branded **Order Confirmation email** to the customer (with `#LAD-1001`, items, totals, and shipping address)
+- A **New Order alert email** to `info@latelierdamla.com` (with customer details, items to pack, and a direct Stripe Dashboard link)
+
+To enable it (takes ~3 minutes, free for up to 3,000 emails/month):
+1. Create a free account at [resend.com](https://resend.com/).
+2. Go to **Domains → Add Domain** and add `latelierdamla.com` (Resend gives you DNS records to paste into your domain provider so emails send from `orders@latelierdamla.com`).
+   *(To test right away before verifying your domain, you can set a Worker text variable `EMAIL_FROM` to `onboarding@resend.dev`—Resend allows sending test emails to your own Resend account email.)*
+3. Go to **API Keys → Create API Key** (Sending access) and copy the `re_...` key.
+4. In Cloudflare Dashboard → **`latelierdamla-checkout` → Settings → Variables and Secrets → Add**:
+   - Type: **Secret**
+   - Variable name: **`RESEND_API_KEY`**
+   - Value: your `re_...` API key
+   - Click **Deploy**.
+
+## 5. Managing Orders & Order Numbers
 - **Order numbers (`LAD-1001`, `LAD-1002`, …):** Generated automatically on every paid order and saved to:
-  1. **Customer `/success` page**: Shows `#LAD-1001`, itemized receipt, shipping city/country, and a **Print Receipt** button.
+  1. **Customer `/success` page & email**: Shows `#LAD-1001`, itemized receipt, shipping address, and a **Print Receipt** button.
   2. **Stripe Dashboard → Payments**: Each payment's description is automatically set to `Order LAD-1001 — L'Atelier Damla` (with `metadata.order_number` and `metadata.items`), so you can search by `LAD-1001`, see the buyer's shipping address & phone, and issue refunds.
   3. **Cloudflare KV (`latelier-inventory`)**: Full order JSON is also saved under `order:number:LAD-1001`.
-- **Email alerts & branded receipts in Stripe Dashboard:**
-  - **Settings → Emails → Customer emails**: Turn on **Successful payments** so buyers receive Stripe's automatic email receipt.
-  - **Settings → Branding**: Upload your logo and set your lilac color (`#9BA7FA`).
-  - **Profile (top-right) → Communication preferences**: Turn on **Successful payments** email notifications so Stripe alerts you on every new order.
 
-## 5. Verify Everything Is Connected
+## 6. Verify Everything Is Connected
 Open `https://latelierdamla-checkout.damlasevimm.workers.dev/` in your browser—you should see:
 ```json
 {
@@ -46,7 +58,8 @@ Open `https://latelierdamla-checkout.damlasevimm.workers.dev/` in your browser�
   "service": "L'Atelier Damla Stripe Checkout",
   "stripeConfigured": true,
   "inventoryKvBound": true,
-  "webhookConfigured": true
+  "webhookConfigured": true,
+  "emailConfigured": true
 }
 ```
 
