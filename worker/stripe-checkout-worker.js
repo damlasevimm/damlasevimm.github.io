@@ -7,8 +7,9 @@
  *   2. Secret:       STRIPE_WEBHOOK_SECRET  (whsec_... from Stripe Developers -> Webhooks)
  *   3. KV Namespace: INVENTORY              (Cloudflare KV namespace for item stock counts only)
  *   4. KV Namespace: ORDERS                 (Cloudflare KV namespace for order numbers & records)
- *   5. Secret:       RESEND_API_KEY         (re_... from https://resend.com — enables automatic emails)
- *   6. Optional Var: EMAIL_FROM             (defaults to "L'Atelier Damla <orders@latelierdamla.com>")
+ *   5. KV Namespace: PROCESSED              (Cloudflare KV namespace for processed/emailed/session keys)
+ *   6. Secret:       RESEND_API_KEY         (re_... from https://resend.com — enables automatic emails)
+ *   7. Optional Var: EMAIL_FROM             (defaults to "L'Atelier Damla <orders@latelierdamla.com>")
  *
  * Endpoints:
  *   GET  /                        -> Health & config status check
@@ -89,6 +90,10 @@ const FREE_SHIPPING = {
 
 function getOrdersKv(env) {
     return env.ORDERS || env.INVENTORY || null;
+}
+
+function getProcessedKv(env) {
+    return env.PROCESSED || env.ORDERS || env.INVENTORY || null;
 }
 
 function corsHeaders(origin) {
@@ -397,9 +402,9 @@ async function sendOrderEmails(env, order) {
         return { customerSent: false, studioSent: false, skipped: true };
     }
 
-    const ordersKv = getOrdersKv(env);
+    const processedKv = getProcessedKv(env);
     const emailKey = `emailed:${order.sessionId}`;
-    if (ordersKv && await ordersKv.get(emailKey)) {
+    if (processedKv && await processedKv.get(emailKey)) {
         return { customerSent: false, studioSent: false, duplicate: true };
     }
 
@@ -429,8 +434,8 @@ async function sendOrderEmails(env, order) {
         text: studioMsg.text
     }).catch(() => false);
 
-    if (ordersKv && (customerSent || studioSent)) {
-        await ordersKv.put(emailKey, new Date().toISOString(), {
+    if (processedKv && (customerSent || studioSent)) {
+        await processedKv.put(emailKey, new Date().toISOString(), {
             expirationTtl: 60 * 60 * 24 * 30
         });
     }
@@ -442,17 +447,18 @@ async function sendOrderEmails(env, order) {
  * Idempotently finalizes a paid Checkout Session:
  * - Assigns sequential order number (LAD-1001, LAD-1002, ...) in ORDERS KV
  * - Decrements item stock once per session in INVENTORY KV
+ * - Tracks processed/emailed/session lookup keys in PROCESSED KV (auto-expiring after 30 days)
  * - Saves order number & items summary onto Stripe PaymentIntent (so it shows in Stripe Dashboard)
- * - Stores the order record in ORDERS KV under order:session:{id} and order:number:{LAD-XXXX}
  */
 async function finalizePaidSession(env, session) {
     const ordersKv = getOrdersKv(env);
-    const sessionOrderKey = `order:session:${session.id}`;
+    const processedKv = getProcessedKv(env);
+    const sessionOrderKey = `session:${session.id}`;
     const processedKey = `processed:${session.id}`;
 
     // If already finalized, return the saved order record immediately
-    if (ordersKv) {
-        const existingRaw = await ordersKv.get(sessionOrderKey);
+    if (processedKv) {
+        const existingRaw = await processedKv.get(sessionOrderKey);
         if (existingRaw) {
             try {
                 return { order: JSON.parse(existingRaw), duplicate: true };
@@ -487,8 +493,8 @@ async function finalizePaidSession(env, session) {
         };
     });
 
-    // Decrement stock in INVENTORY KV only once per session (tracked in ORDERS KV)
-    const alreadyDecremented = ordersKv ? Boolean(await ordersKv.get(processedKey)) : false;
+    // Decrement stock in INVENTORY KV only once per session (tracked in PROCESSED KV)
+    const alreadyDecremented = processedKv ? Boolean(await processedKv.get(processedKey)) : false;
     const updatedStock = {};
 
     if (env.INVENTORY && !alreadyDecremented) {
@@ -506,8 +512,8 @@ async function finalizePaidSession(env, session) {
             updatedStock[catalogId] = nextStock;
         }
 
-        if (ordersKv) {
-            await ordersKv.put(processedKey, new Date().toISOString(), {
+        if (processedKv) {
+            await processedKv.put(processedKey, new Date().toISOString(), {
                 expirationTtl: 60 * 60 * 24 * 30
             });
         }
@@ -562,12 +568,18 @@ async function finalizePaidSession(env, session) {
         ).catch(() => {});
     }
 
+    const serialized = JSON.stringify(orderRecord);
+    const writes = [];
     if (ordersKv) {
-        const serialized = JSON.stringify(orderRecord);
-        await Promise.all([
-            ordersKv.put(sessionOrderKey, serialized),
-            ordersKv.put(`order:number:${orderNumber}`, serialized)
-        ]);
+        writes.push(ordersKv.put(`order:number:${orderNumber}`, serialized));
+    }
+    if (processedKv) {
+        writes.push(processedKv.put(sessionOrderKey, serialized, {
+            expirationTtl: 60 * 60 * 24 * 30
+        }));
+    }
+    if (writes.length) {
+        await Promise.all(writes);
     }
 
     // Send branded confirmation email to customer + order alert to studio (via Resend)
@@ -608,10 +620,10 @@ async function handleGetOrder(request, env, origin) {
         return jsonResponse({ error: 'Invalid session_id.' }, 400, origin);
     }
 
-    // Fast path: already saved in ORDERS KV
-    const ordersKv = getOrdersKv(env);
-    if (ordersKv) {
-        const cached = await ordersKv.get(`order:session:${sessionId}`);
+    // Fast path: already saved in PROCESSED KV
+    const processedKv = getProcessedKv(env);
+    if (processedKv) {
+        const cached = await processedKv.get(`session:${sessionId}`);
         if (cached) {
             try {
                 return jsonResponse({ order: publicOrderReceipt(JSON.parse(cached)) }, 200, origin);
@@ -832,6 +844,7 @@ export default {
                 stripeConfigured: Boolean(env.STRIPE_SECRET_KEY),
                 inventoryKvBound: Boolean(env.INVENTORY),
                 ordersKvBound: Boolean(env.ORDERS),
+                processedKvBound: Boolean(env.PROCESSED),
                 webhookConfigured: Boolean(env.STRIPE_WEBHOOK_SECRET),
                 emailConfigured: Boolean(env.RESEND_API_KEY)
             }, 200, origin);

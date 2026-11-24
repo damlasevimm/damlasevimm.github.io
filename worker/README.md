@@ -6,8 +6,8 @@ Your Cloudflare Worker handles **Stripe Checkout**, **automatic live inventory**
 1. Open your Worker (`latelierdamla-checkout`) in [dash.cloudflare.com](https://dash.cloudflare.com/) → **Workers & Pages**.
 2. Click **Edit code**, replace everything with the contents of [`stripe-checkout-worker.js`](./stripe-checkout-worker.js), and click **Deploy**.
 
-## 2. Create & Bind Your Two Cloudflare KV Namespaces
-Keep item stock and orders cleanly separated in two KV namespaces:
+## 2. Create & Bind Your Three Cloudflare KV Namespaces
+Keep item stock, clean order records, and Stripe session tracking cleanly separated in three KV namespaces:
 
 1. **Items / Stock KV (`latelier-inventory` → binding `INVENTORY`):**
    - Go to **Storage & Databases → KV → Create a namespace** named `latelier-inventory`.
@@ -21,8 +21,12 @@ Keep item stock and orders cleanly separated in two KV namespaces:
    - Attach it to `latelierdamla-checkout` under **Settings → Bindings → Add → KV Namespace** with Variable name **`INVENTORY`**.
 
 2. **Orders KV (`latelier-orders` → binding `ORDERS`):**
-   - Go to **Storage & Databases → KV → Create a namespace** named `latelier-orders` (leave it empty—the Worker writes `order:counter` and `order:number:LAD-1001` here automatically).
+   - Create a namespace named `latelier-orders` (stores only `order:counter` and `order:number:LAD-1001`, `LAD-1002`, …).
    - Attach it to `latelierdamla-checkout` under **Settings → Bindings → Add → KV Namespace** with Variable name **`ORDERS`**.
+
+3. **Processed Sessions KV (`latelier-processed` → binding `PROCESSED`):**
+   - Create a namespace named `latelier-processed` (stores `processed:cs_...`, `emailed:cs_...`, and `session:cs_...` keys, all auto-expiring after 30 days).
+   - Attach it to `latelierdamla-checkout` under **Settings → Bindings → Add → KV Namespace** with Variable name **`PROCESSED`**.
 
 *(Shipping rule: orders strictly higher than **€50** automatically receive **Free Tracked Shipping**; orders €50 and below are charged **€8** standard tracked shipping.)*
 
@@ -66,6 +70,7 @@ Open `https://latelierdamla-checkout.damlasevimm.workers.dev/` in your browser�
   "stripeConfigured": true,
   "inventoryKvBound": true,
   "ordersKvBound": true,
+  "processedKvBound": true,
   "webhookConfigured": true,
   "emailConfigured": true
 }
