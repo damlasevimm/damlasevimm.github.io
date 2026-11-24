@@ -5,9 +5,10 @@
  * Required Cloudflare Worker bindings / secrets (Settings -> Variables and Secrets / Bindings):
  *   1. Secret:       STRIPE_SECRET_KEY      (sk_test_... or sk_live_...)
  *   2. Secret:       STRIPE_WEBHOOK_SECRET  (whsec_... from Stripe Developers -> Webhooks)
- *   3. KV Namespace: INVENTORY              (Cloudflare KV namespace storing stock & order records)
- *   4. Secret:       RESEND_API_KEY         (re_... from https://resend.com — enables automatic emails)
- *   5. Optional Var: EMAIL_FROM             (defaults to "L'Atelier Damla <orders@latelierdamla.com>")
+ *   3. KV Namespace: INVENTORY              (Cloudflare KV namespace for item stock counts only)
+ *   4. KV Namespace: ORDERS                 (Cloudflare KV namespace for order numbers & records)
+ *   5. Secret:       RESEND_API_KEY         (re_... from https://resend.com — enables automatic emails)
+ *   6. Optional Var: EMAIL_FROM             (defaults to "L'Atelier Damla <orders@latelierdamla.com>")
  *
  * Endpoints:
  *   GET  /                        -> Health & config status check
@@ -71,15 +72,24 @@ const SHIPPING_COUNTRIES = [
     'SK', 'TR', 'US'
 ];
 
-// Shipping options shown in Stripe Checkout (amounts in EUR cents)
-const SHIPPING_OPTIONS = [
-    {
-        displayName: 'Standard Tracked Shipping',
-        amount: 800, // €8.00 — set to 0 for free shipping
-        minDays: 3,
-        maxDays: 7
-    }
-];
+// Shipping rules (amounts in EUR cents)
+const FREE_SHIPPING_THRESHOLD_CENTS = 5000; // Free shipping for orders higher than €50.00
+const STANDARD_SHIPPING = {
+    displayName: 'Standard Tracked Shipping',
+    amount: 800, // €8.00
+    minDays: 3,
+    maxDays: 7
+};
+const FREE_SHIPPING = {
+    displayName: 'Free Tracked Shipping (Orders over €50)',
+    amount: 0,
+    minDays: 3,
+    maxDays: 7
+};
+
+function getOrdersKv(env) {
+    return env.ORDERS || env.INVENTORY || null;
+}
 
 function corsHeaders(origin) {
     const allowedOrigin = ALLOWED_ORIGINS.has(origin) ? origin : SITE_URL;
@@ -128,13 +138,14 @@ async function getAllStock(env) {
 }
 
 async function nextOrderNumber(env) {
-    if (!env.INVENTORY) {
+    const ordersKv = getOrdersKv(env);
+    if (!ordersKv) {
         return `${ORDER_PREFIX}-${Date.now().toString().slice(-6)}`;
     }
-    const raw = await env.INVENTORY.get('order:counter');
+    const raw = await ordersKv.get('order:counter');
     const current = raw !== null ? parseInt(raw, 10) : ORDER_START_NUMBER;
     const next = Number.isInteger(current) && current >= ORDER_START_NUMBER ? current + 1 : ORDER_START_NUMBER + 1;
-    await env.INVENTORY.put('order:counter', String(next));
+    await ordersKv.put('order:counter', String(next));
     return `${ORDER_PREFIX}-${next}`;
 }
 
@@ -386,8 +397,9 @@ async function sendOrderEmails(env, order) {
         return { customerSent: false, studioSent: false, skipped: true };
     }
 
+    const ordersKv = getOrdersKv(env);
     const emailKey = `emailed:${order.sessionId}`;
-    if (env.INVENTORY && await env.INVENTORY.get(emailKey)) {
+    if (ordersKv && await ordersKv.get(emailKey)) {
         return { customerSent: false, studioSent: false, duplicate: true };
     }
 
@@ -417,8 +429,8 @@ async function sendOrderEmails(env, order) {
         text: studioMsg.text
     }).catch(() => false);
 
-    if (env.INVENTORY && (customerSent || studioSent)) {
-        await env.INVENTORY.put(emailKey, new Date().toISOString(), {
+    if (ordersKv && (customerSent || studioSent)) {
+        await ordersKv.put(emailKey, new Date().toISOString(), {
             expirationTtl: 60 * 60 * 24 * 30
         });
     }
@@ -428,18 +440,19 @@ async function sendOrderEmails(env, order) {
 
 /**
  * Idempotently finalizes a paid Checkout Session:
- * - Assigns sequential order number (LAD-1001, LAD-1002, ...)
- * - Decrements KV stock once per session
+ * - Assigns sequential order number (LAD-1001, LAD-1002, ...) in ORDERS KV
+ * - Decrements item stock once per session in INVENTORY KV
  * - Saves order number & items summary onto Stripe PaymentIntent (so it shows in Stripe Dashboard)
- * - Stores the order record in KV under order:session:{id} and order:number:{LAD-XXXX}
+ * - Stores the order record in ORDERS KV under order:session:{id} and order:number:{LAD-XXXX}
  */
 async function finalizePaidSession(env, session) {
+    const ordersKv = getOrdersKv(env);
     const sessionOrderKey = `order:session:${session.id}`;
     const processedKey = `processed:${session.id}`;
 
     // If already finalized, return the saved order record immediately
-    if (env.INVENTORY) {
-        const existingRaw = await env.INVENTORY.get(sessionOrderKey);
+    if (ordersKv) {
+        const existingRaw = await ordersKv.get(sessionOrderKey);
         if (existingRaw) {
             try {
                 return { order: JSON.parse(existingRaw), duplicate: true };
@@ -449,7 +462,7 @@ async function finalizePaidSession(env, session) {
         }
     }
 
-    // Fetch finalized line items from Stripe (captures any quantity edits made on Stripe Checkout)
+    // Fetch finalized line items from Stripe
     const lineItemsRes = await fetch(
         `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(session.id)}/line_items?limit=100&expand[]=data.price.product`,
         {
@@ -474,8 +487,8 @@ async function finalizePaidSession(env, session) {
         };
     });
 
-    // Decrement stock only if this session hasn't already decremented stock
-    const alreadyDecremented = env.INVENTORY ? Boolean(await env.INVENTORY.get(processedKey)) : false;
+    // Decrement stock in INVENTORY KV only once per session (tracked in ORDERS KV)
+    const alreadyDecremented = ordersKv ? Boolean(await ordersKv.get(processedKey)) : false;
     const updatedStock = {};
 
     if (env.INVENTORY && !alreadyDecremented) {
@@ -493,9 +506,11 @@ async function finalizePaidSession(env, session) {
             updatedStock[catalogId] = nextStock;
         }
 
-        await env.INVENTORY.put(processedKey, new Date().toISOString(), {
-            expirationTtl: 60 * 60 * 24 * 30
-        });
+        if (ordersKv) {
+            await ordersKv.put(processedKey, new Date().toISOString(), {
+                expirationTtl: 60 * 60 * 24 * 30
+            });
+        }
     }
 
     const orderNumber = await nextOrderNumber(env);
@@ -547,11 +562,11 @@ async function finalizePaidSession(env, session) {
         ).catch(() => {});
     }
 
-    if (env.INVENTORY) {
+    if (ordersKv) {
         const serialized = JSON.stringify(orderRecord);
         await Promise.all([
-            env.INVENTORY.put(sessionOrderKey, serialized),
-            env.INVENTORY.put(`order:number:${orderNumber}`, serialized)
+            ordersKv.put(sessionOrderKey, serialized),
+            ordersKv.put(`order:number:${orderNumber}`, serialized)
         ]);
     }
 
@@ -593,9 +608,10 @@ async function handleGetOrder(request, env, origin) {
         return jsonResponse({ error: 'Invalid session_id.' }, 400, origin);
     }
 
-    // Fast path: already saved in KV
-    if (env.INVENTORY) {
-        const cached = await env.INVENTORY.get(`order:session:${sessionId}`);
+    // Fast path: already saved in ORDERS KV
+    const ordersKv = getOrdersKv(env);
+    if (ordersKv) {
+        const cached = await ordersKv.get(`order:session:${sessionId}`);
         if (cached) {
             try {
                 return jsonResponse({ order: publicOrderReceipt(JSON.parse(cached)) }, 200, origin);
@@ -741,9 +757,11 @@ async function handleCreateCheckoutSession(request, env, origin) {
     params.append('cancel_url', `${SITE_URL}${safeCancelPath}`);
 
     let lineIndex = 0;
+    let subtotalCents = 0;
+
     for (const [id, quantity] of Object.entries(mergedQuantities)) {
         const product = CATALOG[id];
-        const available = liveStock[id];
+        subtotalCents += product.unitAmount * quantity;
 
         params.append(`line_items[${lineIndex}][price_data][currency]`, 'eur');
         params.append(`line_items[${lineIndex}][price_data][unit_amount]`, String(product.unitAmount));
@@ -752,12 +770,6 @@ async function handleCreateCheckoutSession(request, env, origin) {
         params.append(`line_items[${lineIndex}][price_data][product_data][images][0]`, product.image);
         params.append(`line_items[${lineIndex}][price_data][product_data][metadata][catalog_id]`, id);
         params.append(`line_items[${lineIndex}][quantity]`, String(quantity));
-
-        if (available > 1) {
-            params.append(`line_items[${lineIndex}][adjustable_quantity][enabled]`, 'true');
-            params.append(`line_items[${lineIndex}][adjustable_quantity][minimum]`, '1');
-            params.append(`line_items[${lineIndex}][adjustable_quantity][maximum]`, String(Math.min(available, 20)));
-        }
 
         lineIndex++;
     }
@@ -768,17 +780,16 @@ async function handleCreateCheckoutSession(request, env, origin) {
     });
     params.append('phone_number_collection[enabled]', 'true');
 
-    // Shipping rates
-    SHIPPING_OPTIONS.forEach((opt, idx) => {
-        params.append(`shipping_options[${idx}][shipping_rate_data][type]`, 'fixed_amount');
-        params.append(`shipping_options[${idx}][shipping_rate_data][fixed_amount][amount]`, String(opt.amount));
-        params.append(`shipping_options[${idx}][shipping_rate_data][fixed_amount][currency]`, 'eur');
-        params.append(`shipping_options[${idx}][shipping_rate_data][display_name]`, opt.displayName);
-        params.append(`shipping_options[${idx}][shipping_rate_data][delivery_estimate][minimum][unit]`, 'business_day');
-        params.append(`shipping_options[${idx}][shipping_rate_data][delivery_estimate][minimum][value]`, String(opt.minDays));
-        params.append(`shipping_options[${idx}][shipping_rate_data][delivery_estimate][maximum][unit]`, 'business_day');
-        params.append(`shipping_options[${idx}][shipping_rate_data][delivery_estimate][maximum][value]`, String(opt.maxDays));
-    });
+    // Free shipping for orders higher than €50.00, otherwise €8.00 standard tracked shipping
+    const shippingOption = subtotalCents > FREE_SHIPPING_THRESHOLD_CENTS ? FREE_SHIPPING : STANDARD_SHIPPING;
+    params.append('shipping_options[0][shipping_rate_data][type]', 'fixed_amount');
+    params.append('shipping_options[0][shipping_rate_data][fixed_amount][amount]', String(shippingOption.amount));
+    params.append('shipping_options[0][shipping_rate_data][fixed_amount][currency]', 'eur');
+    params.append('shipping_options[0][shipping_rate_data][display_name]', shippingOption.displayName);
+    params.append('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][unit]', 'business_day');
+    params.append('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]', String(shippingOption.minDays));
+    params.append('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]', 'business_day');
+    params.append('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]', String(shippingOption.maxDays));
 
     const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
         method: 'POST',
@@ -820,6 +831,7 @@ export default {
                 service: "L'Atelier Damla Stripe Checkout",
                 stripeConfigured: Boolean(env.STRIPE_SECRET_KEY),
                 inventoryKvBound: Boolean(env.INVENTORY),
+                ordersKvBound: Boolean(env.ORDERS),
                 webhookConfigured: Boolean(env.STRIPE_WEBHOOK_SECRET),
                 emailConfigured: Boolean(env.RESEND_API_KEY)
             }, 200, origin);

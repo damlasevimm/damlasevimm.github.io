@@ -3,6 +3,7 @@
     const CHECKOUT_API_URL = 'https://latelierdamla-checkout.damlasevimm.workers.dev/';
     const WORKER_BASE_URL = CHECKOUT_API_URL.replace(/\/create-checkout-session\/?$/, '').replace(/\/+$/, '');
     const STORAGE_KEY = 'latelier_damla_cart_v1';
+    const FREE_SHIPPING_THRESHOLD = 50; // Free shipping for orders higher than €50
 
     let liveStock = null; // Map of { [productId]: number } once loaded from Worker /inventory
 
@@ -61,7 +62,7 @@
                 <span class="cart-subtotal-label">Subtotal</span>
                 <span class="cart-subtotal-value" id="cartSubtotal">&euro;0</span>
             </div>
-            <p class="cart-shipping-note">Shipping and delivery details are collected at Stripe checkout.</p>
+            <p class="cart-shipping-note" id="cartShippingNote">Free shipping on orders over &euro;50 (&euro;8 standard shipping).</p>
             <div class="cart-error" id="cartError" role="alert"></div>
             <button type="button" class="cart-checkout-btn" id="cartCheckoutBtn">Proceed to Checkout &rarr;</button>
             <div class="cart-powered">Secure checkout powered by Stripe</div>
@@ -74,6 +75,7 @@
     const bodyEl = drawer.querySelector('#cartDrawerBody');
     const footerEl = drawer.querySelector('#cartDrawerFooter');
     const subtotalEl = drawer.querySelector('#cartSubtotal');
+    const shippingNoteEl = drawer.querySelector('#cartShippingNote');
     const errorEl = drawer.querySelector('#cartError');
     const checkoutBtn = drawer.querySelector('#cartCheckoutBtn');
     const closeBtn = drawer.querySelector('.cart-drawer-close');
@@ -284,6 +286,16 @@
         });
 
         subtotalEl.textContent = formatEur(subtotal);
+
+        if (subtotal > FREE_SHIPPING_THRESHOLD) {
+            shippingNoteEl.textContent = 'You have unlocked free tracked shipping!';
+            shippingNoteEl.classList.add('is-free');
+        } else {
+            shippingNoteEl.textContent = subtotal < FREE_SHIPPING_THRESHOLD
+                ? `Free shipping on orders over €50 — add more than ${formatEur(FREE_SHIPPING_THRESHOLD - subtotal)} to qualify (€8 standard shipping).`
+                : 'Free shipping applies on orders over €50 (€8 standard shipping).';
+            shippingNoteEl.classList.remove('is-free');
+        }
     }
 
     function openDrawer() {

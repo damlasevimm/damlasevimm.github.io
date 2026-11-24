@@ -271,6 +271,16 @@
     margin-bottom: 1.15rem;
 }
 
+.cart-shipping-note.is-free {
+    color: var(--periwinkle-deep, #7B89EB);
+    font-style: normal;
+    font-family: var(--font-sans, 'Montserrat', sans-serif);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
 .cart-error {
     display: none;
     background: #FFF2F2;

@@ -6,18 +6,25 @@ Your Cloudflare Worker handles **Stripe Checkout**, **automatic live inventory**
 1. Open your Worker (`latelierdamla-checkout`) in [dash.cloudflare.com](https://dash.cloudflare.com/) → **Workers & Pages**.
 2. Click **Edit code**, replace everything with the contents of [`stripe-checkout-worker.js`](./stripe-checkout-worker.js), and click **Deploy**.
 
-## 2. Create & Bind Your Cloudflare KV Store
-1. In Cloudflare Dashboard, go to **Storage & Databases → KV** → **Create a namespace** named `latelier-inventory`.
-2. Open **KV Pairs** and set your starting stock counts:
-   | Key | Value (current stock) |
-   | --- | --- |
-   | `ocean-cup-01` | `3` |
-   | `shore-cup-02` | `3` |
-   | `meadow-cups-03` | `3` |
-   | `cotton-candy-plate-04` | `2` |
-3. Attach the KV namespace to your Worker under **Settings → Bindings → Add → KV Namespace**:
-   - Variable name: **`INVENTORY`** *(exact spelling, all caps)*
-   - KV namespace: `latelier-inventory`
+## 2. Create & Bind Your Two Cloudflare KV Namespaces
+Keep item stock and orders cleanly separated in two KV namespaces:
+
+1. **Items / Stock KV (`latelier-inventory` → binding `INVENTORY`):**
+   - Go to **Storage & Databases → KV → Create a namespace** named `latelier-inventory`.
+   - Open **KV Pairs** and set your starting stock counts:
+     | Key | Value (current stock) |
+     | --- | --- |
+     | `ocean-cup-01` | `3` |
+     | `shore-cup-02` | `3` |
+     | `meadow-cups-03` | `3` |
+     | `cotton-candy-plate-04` | `2` |
+   - Attach it to `latelierdamla-checkout` under **Settings → Bindings → Add → KV Namespace** with Variable name **`INVENTORY`**.
+
+2. **Orders KV (`latelier-orders` → binding `ORDERS`):**
+   - Go to **Storage & Databases → KV → Create a namespace** named `latelier-orders` (leave it empty—the Worker writes `order:counter` and `order:number:LAD-1001` here automatically).
+   - Attach it to `latelierdamla-checkout` under **Settings → Bindings → Add → KV Namespace** with Variable name **`ORDERS`**.
+
+*(Shipping rule: orders strictly higher than **€50** automatically receive **Free Tracked Shipping**; orders €50 and below are charged **€8** standard tracked shipping.)*
 
 ## 3. Connect the Stripe Webhook
 1. Go to [Stripe Dashboard → Developers → Webhooks](https://dashboard.stripe.com/webhooks) *(matching your Test/Live mode)*.
@@ -48,7 +55,7 @@ To enable it (takes ~3 minutes, free for up to 3,000 emails/month):
 - **Order numbers (`LAD-1001`, `LAD-1002`, …):** Generated automatically on every paid order and saved to:
   1. **Customer `/success` page & email**: Shows `#LAD-1001`, itemized receipt, shipping address, and a **Print Receipt** button.
   2. **Stripe Dashboard → Payments**: Each payment's description is automatically set to `Order LAD-1001 — L'Atelier Damla` (with `metadata.order_number` and `metadata.items`), so you can search by `LAD-1001`, see the buyer's shipping address & phone, and issue refunds.
-  3. **Cloudflare KV (`latelier-inventory`)**: Full order JSON is also saved under `order:number:LAD-1001`.
+  3. **Cloudflare KV (`latelier-orders`)**: Full order JSON is saved under `order:number:LAD-1001` (separate from item stock in `latelier-inventory`).
 
 ## 6. Verify Everything Is Connected
 Open `https://latelierdamla-checkout.damlasevimm.workers.dev/` in your browser—you should see:
@@ -58,6 +65,7 @@ Open `https://latelierdamla-checkout.damlasevimm.workers.dev/` in your browser�
   "service": "L'Atelier Damla Stripe Checkout",
   "stripeConfigured": true,
   "inventoryKvBound": true,
+  "ordersKvBound": true,
   "webhookConfigured": true,
   "emailConfigured": true
 }
