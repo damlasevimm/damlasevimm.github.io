@@ -939,7 +939,7 @@
     <section class="shop-hero">
         <div class="shop-hero-inner">
             <div>
-                <div class="eyebrow">Collection 01 — Stoneware</div>
+                <div class="eyebrow">Collection 01 — Stoneware &amp; Porcelain</div>
                 <h1>All Ceramic <em>Works</em></h1>
             </div>
             <p class="shop-hero-sub">Each piece is wheel-thrown or hand-built in small batches. Browse by form, glaze, or price to find an object shaped for daily rituals.</p>
@@ -968,6 +968,13 @@
                         <button type="button" class="filter-pill" data-filter="cups">Cups</button>
                         <button type="button" class="filter-pill" data-filter="plates">Plates</button>
                     </div>
+
+                    <div class="filter-group" id="clayFilters" role="group" aria-label="Filter by clay body">
+                        <span class="filter-label">Clay Body</span>
+                        <button type="button" class="filter-pill is-active" data-clay-filter="all">All</button>
+                        <button type="button" class="filter-pill" data-clay-filter="stoneware">Stoneware</button>
+                        <button type="button" class="filter-pill" data-clay-filter="porcelain">Porcelain</button>
+                    </div>
                 </div>
 
                 <div class="controls-bottom">
@@ -980,7 +987,7 @@
                             type="search"
                             id="searchInput"
                             class="search-input"
-                            placeholder="Search by piece or glaze..."
+                            placeholder="Search by piece, clay, or glaze..."
                             aria-label="Search ceramic pieces">
                     </div>
 
@@ -1032,11 +1039,12 @@
                 <article class="product-card"
                     data-order="1"
                     data-category="cups"
+                    data-clay="stoneware"
                     data-glaze="satin"
                     data-price="30"
                     data-name="No. 01 — The Ocean Cup">
                     <div class="product-img-box">
-                        <span class="product-badge">Cups</span>
+                        <span class="product-badge">Cups &middot; Stoneware</span>
                         <img src="./images/ocean_cup.jpeg" alt="No. 01 — The Ocean Cup">
                     </div>
                     <div class="product-caption">
@@ -1061,11 +1069,12 @@
                 <article class="product-card"
                     data-order="2"
                     data-category="cups"
+                    data-clay="stoneware"
                     data-glaze="volcanic"
                     data-price="30"
                     data-name="No. 02 — Shore Cup">
                     <div class="product-img-box">
-                        <span class="product-badge">Cups</span>
+                        <span class="product-badge">Cups &middot; Stoneware</span>
                         <img src="./images/shore_cup.jpeg" alt="No. 02 — Shore Cup">
                     </div>
                     <div class="product-caption">
@@ -1090,11 +1099,12 @@
                 <article class="product-card"
                     data-order="3"
                     data-category="cups"
+                    data-clay="stoneware"
                     data-glaze="matte"
                     data-price="30"
                     data-name="No. 03 — The Meadow Cups">
                     <div class="product-img-box">
-                        <span class="product-badge">Cups</span>
+                        <span class="product-badge">Cups &middot; Stoneware</span>
                         <img src="./images/green_cups.jpeg" alt="No. 03 — The Meadow Cups">
                     </div>
                     <div class="product-caption">
@@ -1119,11 +1129,12 @@
                 <article class="product-card"
                     data-order="4"
                     data-category="plates"
+                    data-clay="stoneware"
                     data-glaze="multi-color"
                     data-price="35"
                     data-name="No. 04 — Cotton Candy Plate">
                     <div class="product-img-box">
-                        <span class="product-badge">Plates</span>
+                        <span class="product-badge">Plates &middot; Stoneware</span>
                         <img src="./images/colored_plate.jpeg" alt="No. 04 — Cotton Candy Plate">
                     </div>
                     <div class="product-caption">
@@ -1149,7 +1160,7 @@
             <!-- Empty State -->
             <div class="empty-state" id="emptyState">
                 <h3>No pieces match your selection</h3>
-                <p>Try clearing one of your filters or browse the full stoneware collection.</p>
+                <p>Try clearing one of your filters or browse the full collection.</p>
                 <button type="button" class="cta-pill" id="emptyResetBtn">Show All Works</button>
             </div>
 
@@ -1216,6 +1227,7 @@
         const catalogGrid = document.getElementById('catalogGrid');
         const allCards = Array.from(catalogGrid.querySelectorAll('.product-card'));
         const categoryButtons = Array.from(document.querySelectorAll('#categoryFilters .filter-pill'));
+        const clayButtons = Array.from(document.querySelectorAll('#clayFilters .filter-pill'));
         const searchInput = document.getElementById('searchInput');
         const priceFilter = document.getElementById('priceFilter');
         const glazeFilter = document.getElementById('glazeFilter');
@@ -1227,6 +1239,7 @@
 
         const state = {
             category: 'all',
+            clay: 'all',
             price: 'all',
             glaze: 'all',
             search: '',
@@ -1266,6 +1279,7 @@
         function updateURL() {
             const params = new URLSearchParams();
             if (state.category !== 'all') params.set('category', state.category);
+            if (state.clay !== 'all') params.set('clay', state.clay);
             if (state.price !== 'all') params.set('price', state.price);
             if (state.glaze !== 'all') params.set('finish', state.glaze);
             if (state.search) params.set('q', state.search);
@@ -1284,12 +1298,14 @@
 
             sortedCards.forEach(card => {
                 const category = card.dataset.category;
+                const clay = card.dataset.clay || '';
                 const glaze = card.dataset.glaze;
                 const price = parseFloat(card.dataset.price);
-                const searchable = `${card.dataset.name} ${card.textContent}`.toLowerCase();
+                const searchable = `${card.dataset.name} ${clay} ${card.textContent}`.toLowerCase();
 
                 const isMatch =
                     (state.category === 'all' || category === state.category) &&
+                    (state.clay === 'all' || clay === state.clay) &&
                     (state.glaze === 'all' || glaze === state.glaze) &&
                     matchesPrice(price, state.price) &&
                     (!query || searchable.includes(query));
@@ -1306,6 +1322,7 @@
 
             const hasActiveFilter =
                 state.category !== 'all' ||
+                state.clay !== 'all' ||
                 state.price !== 'all' ||
                 state.glaze !== 'all' ||
                 query !== '' ||
@@ -1323,14 +1340,22 @@
             });
         }
 
+        function setActiveClayButton(clay) {
+            clayButtons.forEach(btn => {
+                btn.classList.toggle('is-active', btn.dataset.clayFilter === clay);
+            });
+        }
+
         function resetAllFilters() {
             state.category = 'all';
+            state.clay = 'all';
             state.price = 'all';
             state.glaze = 'all';
             state.search = '';
             state.sort = 'featured';
 
             setActiveCategoryButton('all');
+            setActiveClayButton('all');
             searchInput.value = '';
             priceFilter.value = 'all';
             glazeFilter.value = 'all';
@@ -1344,6 +1369,14 @@
             btn.addEventListener('click', () => {
                 state.category = btn.dataset.filter;
                 setActiveCategoryButton(state.category);
+                applyFiltersAndSort();
+            });
+        });
+
+        clayButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.clay = btn.dataset.clayFilter;
+                setActiveClayButton(state.clay);
                 applyFiltersAndSort();
             });
         });
@@ -1375,6 +1408,7 @@
         (function initFromURL() {
             const params = new URLSearchParams(window.location.search);
             const cat = params.get('category');
+            const clay = params.get('clay');
             const price = params.get('price');
             const finish = params.get('finish');
             const q = params.get('q');
@@ -1383,6 +1417,10 @@
             if (cat && categoryButtons.some(b => b.dataset.filter === cat)) {
                 state.category = cat;
                 setActiveCategoryButton(cat);
+            }
+            if (clay && clayButtons.some(b => b.dataset.clayFilter === clay)) {
+                state.clay = clay;
+                setActiveClayButton(clay);
             }
             if (price && Array.from(priceFilter.options).some(o => o.value === price)) {
                 state.price = price;
