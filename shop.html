@@ -256,6 +256,44 @@
             font-weight: 300;
         }
 
+        /* --- FREE SHIPPING ANNOUNCEMENT BANNER --- */
+        .shipping-banner {
+            background-color: var(--periwinkle);
+            color: var(--white);
+            padding: 0.9rem 4vw;
+            text-align: center;
+            border-bottom: 1px solid var(--periwinkle-deep);
+        }
+
+        .shipping-banner-inner {
+            max-width: 1320px;
+            margin: 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .shipping-banner-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.75);
+            display: inline-block;
+        }
+
+        .shipping-banner-sub {
+            font-weight: 300;
+            opacity: 0.92;
+            letter-spacing: 0.14em;
+        }
+
         /* --- CATALOG CONTROLS & FILTER BAR --- */
         .catalog-section {
             padding: 3.5rem 4vw 8rem 4vw;
@@ -907,6 +945,15 @@
             <p class="shop-hero-sub">Each piece is wheel-thrown or hand-built in small batches. Browse by form, glaze, or price to find an object shaped for daily rituals.</p>
         </div>
     </section>
+
+    <!-- FREE SHIPPING BANNER -->
+    <div class="shipping-banner" role="note" aria-label="Shipping offer">
+        <div class="shipping-banner-inner">
+            <span>Free Tracked Shipping on Orders Over &euro;50</span>
+            <span class="shipping-banner-dot" aria-hidden="true"></span>
+            <span class="shipping-banner-sub">&euro;8 Standard Shipping Below &euro;50</span>
+        </div>
+    </div>
 
     <!-- CATALOG WITH FILTERS & SORT -->
     <main class="catalog-section">
